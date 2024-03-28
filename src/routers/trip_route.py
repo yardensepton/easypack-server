@@ -14,7 +14,7 @@ router = APIRouter(
 )
 
 trip_controller = TripController()
-API_KEY = "37dc14380f18978f0613562bd06a2775"
+API_KEY = ""
 BASE_URL = "https://api.openweathermap.org/data/2.5/weather"
 
 @router.get("/weather")
