@@ -1,3 +1,2 @@
-MONGO_PORT = 27017
-MONGO_DB_NAME = "easyPack"
+MONGO_DB_NAME = "EasyPack"
 
