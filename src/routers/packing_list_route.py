@@ -1,15 +1,11 @@
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from fastapi import APIRouter, Query
 
-from src.controllers import UserController
+
 from src.controllers.packing_list_controller import PackingListController
-from src.controllers.trip_controller import TripController
 from src.entity.packing_list import PackingList
-from src.entity.trip import Trip
-from src.entity.update_trip import TripUpdate
-from src.entity.update_user import UserUpdate
-from src.entity.user import User
+
 
 router = APIRouter(
     prefix="/packing-lists",
@@ -23,18 +19,21 @@ list_controller = PackingListController()
 def create_packing_list(packing_list: PackingList, trip_id: str = Query(..., alias="trip_id")) -> PackingList:
     return list_controller.create_packing_list(packing_list ,trip_id)
 
-@router.get("/{list_id}", response_model=PackingList)
-def get_packing_list_by_id(list_id: str):
-    return list_controller.get_packing_list_by_id(list_id)
+
+@router.get("/", response_model=Union[PackingList, Optional[List[PackingList]]])
+def get(trip_id: Optional[str] = Query(None, description="Trip ID"),
+              list_id: Optional[str] = Query(None, description="List ID")):
+    if trip_id is not None:
+        # If trip_id is provided, return the packing list with that trip ID
+       return list_controller.get_packing_list_by_trip_id(trip_id)
+    elif list_id is not None:
+        # If list_id is provided, return the list with that list ID
+       return list_controller.get_packing_list_by_id(list_id)
 
 
-@router.get("", response_model=Optional[List[PackingList]])
-def get_packing_list_by_trip_id(trip_id: str = Query(..., alias="trip_id")):
-    return list_controller.get_packing_list_by_trip_id(trip_id)
 
-
-@router.delete("/delete", response_model=None)
-def delete_packing_list_by_id(list_id: str = Query(..., alias="list_id")):
+@router.delete("/{list_id}", response_model=None)
+def delete_packing_list_by_id(list_id: str):
     list_controller.delete_packing_list_by_id(list_id)
 
 

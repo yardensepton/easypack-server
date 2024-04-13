@@ -10,8 +10,8 @@ class TripController:
         self.trip_user_service = TripUserService()
         self.packing_list_trip_service = PackingListTripService()
 
-    def create_trip(self, trip, user_id):
-        return self.trip_user_service.create_trip_and_add_user(user_id, trip)
+    def create_trip(self, trip):
+        return self.trip_user_service.create_trip_and_add_user(trip)
 
     def get_trip_by_id(self, trip_id):
         return self.trip_service.get_trip_by_id(trip_id)

@@ -18,9 +18,9 @@ def create_user(user: User):
     return user_controller.create_user(user)
 
 
-@router.get("/by", response_model=User)
-def get_user_by_email(email: str = Query(..., alias="email")):
-    return user_controller.get_user_by_email(email)
+# @router.get("/by", response_model=User)
+# def get_user_by_email(email: str = Query(..., alias="email")):
+#     return user_controller.get_user_by_email(email)
 
 
 @router.get("/{user_id}", response_model=User)

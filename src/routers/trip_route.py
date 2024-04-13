@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Union
 
 import httpx
 from fastapi import APIRouter, Query, HTTPException
@@ -32,22 +32,22 @@ async def get_weather(city: str, country: str):
         return weather_data
 
 @router.post("", response_model=Trip)
-def create_trip(trip: Trip, user_id: str = Query(..., alias="user_id")) -> Trip:
-    return trip_controller.create_trip(trip, user_id)
+def create_trip(trip: Trip) -> Trip:
+    return trip_controller.create_trip(trip)
 
 
-@router.get("/{trip_id}", response_model=Trip)
-def get_trip_by_id(trip_id: str):
-    return trip_controller.get_trip_by_id(trip_id)
+@router.get("/", response_model=Union[Trip, Optional[List[Trip]]])
+def get(trip_id: Optional[str] = Query(None, description="Trip ID"),
+              user_id: Optional[str] = Query(None, description="User ID")):
+    if trip_id is not None:
+        # If trip_id is provided, return the trip with that ID
+       return trip_controller.get_trip_by_id(trip_id)
+    elif user_id is not None:
+        # If user_id is provided, return trips by user_id
+       return trip_controller.get_trips_by_user_id(user_id)
 
-
-@router.get("", response_model=Optional[List[Trip]])
-def get_trips_by_user_id(user_id: str = Query(..., alias="user_id")):
-    return trip_controller.get_trips_by_user_id(user_id)
-
-
-@router.delete("/delete", response_model=None)
-def delete_trip_by_id(trip_id: str = Query(..., alias="user_id")):
+@router.delete("/{trip_id}", response_model=None)
+def delete_trip_by_id(trip_id: str):
     trip_controller.delete_trip_by_id(trip_id)
 
 

@@ -16,12 +16,12 @@ class TripUserService:
         self.user_service.delete_user_by_id(user_id=user_id)
 
 
-    def create_trip_and_add_user(self, user_id: str, trip:Trip):
+    def create_trip_and_add_user(self,trip:Trip):
         """
         Create a trip and associate it with the user.
         """
-        user = self.user_service.get_user_by_id(user_id)
-        return self.trip_service.create_trip(user_id=user_id,trip=trip,user=user)
+        user = self.user_service.get_user_by_id(trip.user_id)
+        return self.trip_service.create_trip(user_id=trip.user_id,trip=trip,user=user)
 
 
     def get_user_trips(self, user_id: str):
