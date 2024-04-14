@@ -1,27 +1,26 @@
-name: Create New Branch
-
 on:
-  # The workflow can be manually triggered using the UI or API
-  workflow_dispatch:
-    inputs:
-      branch_name:
-        description: "Name of the new branch to create"
-        required: true
-        type: string
+  push:
+    # Sequence of patterns matched against refs/tags
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+
+name: Create Branch
 
 jobs:
-  create-branch:
-    runs-on: ubuntu-latest  # Specifies the runner to use
+  build:
+    permissions: # Read more at : https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs
+      contents: write
+    name: Create Branch
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4  # Use the latest version of the checkout action
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Create Branch
+        id: create_branch
+        uses: lablnet/create-branch-from-tag@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
-          fetch-depth: 0  # Fetch the entire history to allow branch creation
-
-      - name: Create new branch
-        run: |
-          git checkout -b ${{ inputs.branch_name }}  # Create a new branch with the provided name
-
-      - name: Push new branch
-        run: |
-          git push origin ${{ inputs.branch_name }}  # Push the new branch to the repository
+          tag_name: ${{ github.ref }}
+          owner: ${{ github.repository_owner }} # https://docs.github.com/en/actions/learn-github-actions/contexts#example-contents-of-the-github-context
+          repo: ${{ github.event.repository.name }} # https://www.reddit.com/r/github/comments/tjkj6f/get_repo_name_on_github_actions_without_owner/
