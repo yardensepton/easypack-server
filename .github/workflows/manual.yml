@@ -1,27 +1,27 @@
-name: Create Branch
+name: Create New Branch
 
 on:
+  # The workflow can be manually triggered using the UI or API
   workflow_dispatch:
     inputs:
-      mission_name:
-        description: 'Name of the mission'
+      branch_name:
+        description: "Name of the new branch to create"
         required: true
         type: string
 
 jobs:
   create-branch:
-    runs-on: ubuntu-latest
-
+    runs-on: ubuntu-latest  # Specifies the runner to use
     steps:
-    - name: Set up Node.js 20
-      uses: actions/setup-node@v3
-      with:
-        node-version: '20'
+      - name: Checkout repository
+        uses: actions/checkout@v4  # Use the latest version of the checkout action
+        with:
+          fetch-depth: 0  # Fetch the entire history to allow branch creation
 
-    - name: Checkout the repository
-      uses: actions/checkout@v3
+      - name: Create new branch
+        run: |
+          git checkout -b ${{ inputs.branch_name }}  # Create a new branch with the provided name
 
-    - name: Create a new branch for the mission
-      run: |
-        git checkout -b ${{ inputs.mission_name }} master
-        git push origin ${{ inputs.mission_name }}
+      - name: Push new branch
+        run: |
+          git push origin ${{ inputs.branch_name }}  # Push the new branch to the repository
