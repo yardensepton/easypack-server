@@ -4,6 +4,7 @@ from fastapi import APIRouter, Query
 
 
 from src.controllers.packing_list_controller import PackingListController
+from src.controllers.trip_controller import TripController
 from src.entity.packing_list import PackingList
 
 
@@ -14,10 +15,12 @@ router = APIRouter(
 
 
 list_controller = PackingListController()
+trip_controller = TripController()
 
-@router.post("", response_model=PackingList)
-def create_packing_list(packing_list: PackingList, trip_id: str = Query(..., alias="trip_id")) -> PackingList:
-    return list_controller.create_packing_list(packing_list ,trip_id)
+@router.post("/", response_model=PackingList)
+def create_packing_list(packing_list: PackingList) -> PackingList:
+    trip_controller.get_trip_by_id(packing_list.trip_id)
+    return list_controller.create_packing_list(packing_list)
 
 
 @router.get("/", response_model=Union[PackingList, Optional[List[PackingList]]])
@@ -25,6 +28,7 @@ def get(trip_id: Optional[str] = Query(None, description="Trip ID"),
               list_id: Optional[str] = Query(None, description="List ID")):
     if trip_id is not None:
         # If trip_id is provided, return the packing list with that trip ID
+       trip_controller.get_trip_by_id(trip_id)
        return list_controller.get_packing_list_by_trip_id(trip_id)
     elif list_id is not None:
         # If list_id is provided, return the list with that list ID

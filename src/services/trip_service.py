@@ -12,6 +12,7 @@ class TripService:
     def __init__(self):
         self.db_handler = db_handler.DBHandler(db, "TRIPS")
 
+
     def validate_date(self, departure_date: str, return_date: str) -> bool:
         # Parse date strings into datetime.date objects
         date1 = self.parse_date(departure_date)
@@ -24,13 +25,15 @@ class TripService:
         # Validation passed
         return True
 
-    def create_trip(self, trip, user_id, user):
-        if user is not None:
-            if self.validate_date(trip.departure_date, trip.return_date) and self.availability_within_date_range(
-                    user_id, trip):
-                trip.user_id = user_id
-                inserted_trip = self.db_handler.insert_one(trip)
-                return inserted_trip
+
+    def create_trip(self, trip):
+        # if user is not None:
+        user_id = trip.user_id
+        if self.validate_date(trip.departure_date, trip.return_date) and self.availability_within_date_range(
+                user_id, trip):
+            trip.user_id = user_id
+            inserted_trip = self.db_handler.insert_one(trip)
+            return inserted_trip
 
 
     def get_trip_by_id(self, trip_id):
@@ -39,11 +42,13 @@ class TripService:
             return trip
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Trip {trip_id} not found")
 
+
     def get_trips_by_user_id(self, user_id):
         trips = self.db_handler.find({"user_id": user_id})
         if len(trips) != 0:
             return trips
         return None
+
 
     def get_trips_by_user_id_with_exception(self, user_id):
         trips = self.get_trips_by_user_id(user_id)
@@ -53,6 +58,7 @@ class TripService:
                 detail=f"There are no trips for user_id {user_id}"
             )
         return trips
+
 
     def availability_within_date_range(self, user_id: str, new_trip: Trip) -> bool:
         trips = self.get_trips_by_user_id(user_id=user_id)
@@ -77,6 +83,7 @@ class TripService:
         # No trip found within the date range
         return True
 
+
     def parse_date(self, date_str: str) -> datetime:
         try:
             return datetime.strptime(date_str, "%Y-%m-%d")
@@ -84,11 +91,13 @@ class TripService:
             # Handle invalid date format
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid date format")
 
+
     def delete_trips_by_user_id(self, user_id):
         trips = self.get_trips_by_user_id_with_exception(user_id)
         if trips is not None:
             self.db_handler.delete_many({"user_id": user_id})
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"user {user_id} not found")
+
 
     def delete_trip_by_id(self, trip_id):
         trip = self.get_trip_by_id(trip_id)
@@ -96,8 +105,6 @@ class TripService:
             self.db_handler.delete_one("_id", trip_id)
         else:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"trip {trip_id} not found")
-
-
 
 
     def is_updated_trip_within_date_range(self, user_id: str, new_info: TripUpdate,
@@ -143,6 +150,7 @@ class TripService:
                             return True
         return False
 
+
     def update_trip_by_id(self, new_info, trip_id):
         # adding the input values to a dict if they are not null
         trip_dict = self.get_trip_by_id(trip_id)
@@ -158,3 +166,9 @@ class TripService:
         updated = self.db_handler.find_one_and_update(new_info_dict, trip_id)
         if updated is not None:
             return updated
+
+    def get_all_trips(self):
+        trips = self.db_handler.find_all()
+        if trips:
+            return trips
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"there are no trips")
