@@ -1,0 +1,24 @@
+name: Mission-based Branch Creation
+
+on:
+  workflow_dispatch:
+    inputs:
+      mission_name:
+        description: "Name of the mission for which to create a new branch"
+        required: true
+        type: string
+
+jobs:
+  create-branch:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout the repository
+      uses: actions/checkout@v2
+
+    - name: Create a new branch for the mission
+      run: |
+        # Create a new branch from the 'master' branch
+        git checkout -b ${{ inputs.mission_name }} master
+        # Push the new branch to the repository
+        git push origin ${{ inputs.mission_name }}
