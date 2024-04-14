@@ -1,7 +1,6 @@
 name: Create New Branch
 
 on:
-  # The workflow can be manually triggered using the UI or API
   workflow_dispatch:
     inputs:
       branch_name:
@@ -11,7 +10,9 @@ on:
 
 jobs:
   create-branch:
-    runs-on: ubuntu-latest  # Specifies the runner to use
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Grant write permissions to the contents (repository)
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4  # Use the latest version of the checkout action
