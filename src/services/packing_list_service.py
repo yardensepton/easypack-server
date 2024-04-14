@@ -14,12 +14,11 @@ class PackingListService:
             return packing_list
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"List {list_id} not found")
 
-    def create_packing_list(self, trip_id, packing_list):
-        if self.check_trip_has_packing_list(trip_id) is False:
-            packing_list.trip_id = trip_id
+    def create_packing_list(self, packing_list):
+        if self.check_trip_has_packing_list(packing_list.trip_id) is False:
             return self.db_handler.insert_one(packing_list)
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                            detail=f"There is already a packing list to trip {trip_id}")
+                            detail=f"There is already a packing list to trip {packing_list.trip_id}")
 
     def check_trip_has_packing_list(self, trip_id) -> bool:
         packing_list = self.get_packing_list_by_trip_id(trip_id)
