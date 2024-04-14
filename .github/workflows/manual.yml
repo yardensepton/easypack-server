@@ -1,10 +1,10 @@
-name: Mission-based Branch Creation
+name: Create Branch
 
 on:
   workflow_dispatch:
     inputs:
       mission_name:
-        description: "Name of the mission for which to create a new branch"
+        description: 'Name of the mission'
         required: true
         type: string
 
@@ -13,12 +13,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Set up Node.js 20
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+
     - name: Checkout the repository
       uses: actions/checkout@v3
 
     - name: Create a new branch for the mission
       run: |
-        # Create a new branch from the 'master' branch
         git checkout -b ${{ inputs.mission_name }} master
-        # Push the new branch to the repository
         git push origin ${{ inputs.mission_name }}
