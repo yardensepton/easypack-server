@@ -13,8 +13,6 @@ class UserController:
     def get_user_by_id(self, user_id):
         return self.user_service.get_user_by_id(user_id)
 
-    def get_user_by_email(self, user_email):
-        return self.user_service.get_user_by_email(user_email)
 
     def delete_user_by_id(self, user_id):
         self.user_service.delete_user_by_id(user_id)

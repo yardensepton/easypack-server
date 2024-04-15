@@ -4,6 +4,8 @@ from datetime import datetime
 
 from src.entity.trip import Trip
 from src.entity.update_trip import TripUpdate
+from src.exceptions.input_error import InputError
+from src.exceptions.trip_not_found_error import TripNotFoundError
 from src.repositories import db_handler
 from db import db
 
@@ -20,9 +22,7 @@ class TripService:
 
         # Check if date2 is before date1
         if date2 < date1:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                                detail="Return date is before departure date")
-        # Validation passed
+            raise InputError("Return date is before departure date")
         return True
 
 
@@ -31,7 +31,6 @@ class TripService:
         user_id = trip.user_id
         if self.validate_date(trip.departure_date, trip.return_date) and self.availability_within_date_range(
                 user_id, trip):
-            trip.user_id = user_id
             inserted_trip = self.db_handler.insert_one(trip)
             return inserted_trip
 
@@ -40,7 +39,7 @@ class TripService:
         trip = self.db_handler.find_one("_id", trip_id)
         if trip is not None:
             return trip
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Trip {trip_id} not found")
+        raise TripNotFoundError(trip_id)
 
 
     def get_trips_by_user_id(self, user_id):
@@ -48,16 +47,6 @@ class TripService:
         if len(trips) != 0:
             return trips
         return None
-
-
-    def get_trips_by_user_id_with_exception(self, user_id):
-        trips = self.get_trips_by_user_id(user_id)
-        if trips is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"There are no trips for user_id {user_id}"
-            )
-        return trips
 
 
     def availability_within_date_range(self, user_id: str, new_trip: Trip) -> bool:
@@ -77,8 +66,7 @@ class TripService:
 
             # Check if the trip falls within the specified date range
             if new_trip_start <= trip_start_date <= new_trip_end or new_trip_start <= trip_end_date <= new_trip_end:
-                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                                    detail=f"User {user_id} has a trip within the date range")
+                raise InputError(f"User '{user_id}' has a trip within the date range")
 
         # No trip found within the date range
         return True
@@ -88,23 +76,19 @@ class TripService:
         try:
             return datetime.strptime(date_str, "%Y-%m-%d")
         except ValueError:
-            # Handle invalid date format
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid date format")
+            raise ValueError ("Invalid date format. Expected format: YYYY-MM-DD")
 
 
     def delete_trips_by_user_id(self, user_id):
-        trips = self.get_trips_by_user_id_with_exception(user_id)
+        trips = self.get_trips_by_user_id(user_id)
         if trips is not None:
             self.db_handler.delete_many({"user_id": user_id})
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"user {user_id} not found")
 
 
     def delete_trip_by_id(self, trip_id):
         trip = self.get_trip_by_id(trip_id)
         if trip is not None:
             self.db_handler.delete_one("_id", trip_id)
-        else:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"trip {trip_id} not found")
 
 
     def is_updated_trip_within_date_range(self, user_id: str, new_info: TripUpdate,
@@ -158,7 +142,7 @@ class TripService:
         print(trip.user_id)
         if new_info.return_date is not None or new_info.departure_date is not None:
             if self.is_updated_trip_within_date_range(trip.user_id, new_info, trip_id) is False:
-                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"trouble with new dates given")
+                raise ImportError("trouble with new dates given")
         new_info_dict = {
             k: v for k, v in new_info.model_dump(by_alias=True).items() if v is not None
         }
@@ -168,7 +152,4 @@ class TripService:
             return updated
 
     def get_all_trips(self):
-        trips = self.db_handler.find_all()
-        if trips:
-            return trips
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"there are no trips")
+        return self.db_handler.find_all()

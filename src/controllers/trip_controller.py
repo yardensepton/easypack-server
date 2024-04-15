@@ -1,3 +1,6 @@
+from fastapi import HTTPException
+from starlette import status
+
 from src.controllers.packing_list_controller import PackingListController
 from src.entity.trip import Trip
 from src.services.trip_service import TripService
@@ -15,15 +18,12 @@ class TripController:
     def get_trip_by_id(self, trip_id):
         return self.trip_service.get_trip_by_id(trip_id)
 
-    def get_trips_by_user_id_with_exception(self, user_id):
-        return self.trip_service.get_trips_by_user_id_with_exception(user_id)
 
     def get_trips_by_user_id(self, user_id):
         return self.trip_service.get_trips_by_user_id(user_id)
 
     def delete_trip_by_id(self, trip_id):
         self.trip_service.delete_trip_by_id(trip_id)
-
 
     def delete_trips_by_user_id(self, user_id):
         trips = self.get_trips_by_user_id(user_id)

@@ -1,14 +1,16 @@
 from typing import List, Optional, Union
 
-
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, HTTPException
+from starlette import status
 
 from src.controllers import UserController
 from src.controllers.packing_list_controller import PackingListController
 from src.controllers.trip_controller import TripController
 from src.entity.trip import Trip
 from src.entity.update_trip import TripUpdate
-
+from src.exceptions.input_error import InputError
+from src.exceptions.trip_not_found_error import TripNotFoundError
+from src.exceptions.user_not_found_error import UserNotFoundError
 
 router = APIRouter(
     prefix="/trips",
@@ -32,7 +34,6 @@ def construct_url(location: str, departure: str, arrival: str) -> str:
     if arrival:
         url += f"/{arrival}"
     return url
-
 
 
 # @router.get("/{location}")
@@ -76,28 +77,62 @@ def construct_url(location: str, departure: str, arrival: str) -> str:
 
 @router.post("", response_model=Trip)
 def create_trip(trip: Trip) -> Trip:
-    user_controller.get_user_by_id(trip.user_id)
-    return trip_controller.create_trip(trip)
+    try:
+        user_controller.get_user_by_id(trip.user_id)
+        return trip_controller.create_trip(trip)
+    except UserNotFoundError as unf:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(unf))
+    except ValueError as ve:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(ve))
+    except InputError as de:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(de))
 
 
 @router.get("/", response_model=Union[Trip, Optional[List[Trip]]])
 def get(trip_id: Optional[str] = Query(None, description="Trip ID"),
-              user_id: Optional[str] = Query(None, description="User ID")):
+        user_id: Optional[str] = Query(None, description="User ID")):
     if trip_id is not None:
-        # If trip_id is provided, return the trip with that ID
-       return trip_controller.get_trip_by_id(trip_id)
+        try:
+            return trip_controller.get_trip_by_id(trip_id)
+        except TripNotFoundError as tnf:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(tnf))
+
+
     elif user_id is not None:
-        # If user_id is provided, return trips by user_id
-       return trip_controller.get_trips_by_user_id_with_exception(user_id)
+        try:
+            user_controller.get_user_by_id(user_id)
+        except UserNotFoundError as e:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+        trips = trip_controller.get_trips_by_user_id(user_id)
+        if trips is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No trips found for this user")
+        return trips
+
+        # If neither trip_id nor user_id is provided, return all trips
     else:
-        return trip_controller.get_all_trips()
+        trips = trip_controller.get_all_trips()
+        if trips is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="There are no trips in the DB")
+        return trips
+
 
 @router.delete("/{trip_id}", response_model=None)
 def delete_trip_by_id(trip_id: str):
-    packing_list_controller.delete_packing_list_by_trip_id(trip_id)
-    trip_controller.delete_trip_by_id(trip_id)
+    try:
+        trip_controller.get_trip_by_id(trip_id)
+        packing_list_controller.delete_packing_list_by_trip_id(trip_id)
+        trip_controller.delete_trip_by_id(trip_id)
+    except TripNotFoundError as tnf:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(tnf))
 
 
 @router.put("/{trip_id}", response_model=Trip)
 def update_trip_by_id(new_info: TripUpdate, trip_id: str):
-    return trip_controller.update_trip_by_id(new_info, trip_id)
+    try:
+        trip_controller.get_trip_by_id(trip_id)
+        return trip_controller.update_trip_by_id(new_info, trip_id)
+    except TripNotFoundError as tnf:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(tnf))
+    except InputError as ie:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(ie))
