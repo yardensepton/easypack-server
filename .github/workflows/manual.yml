@@ -9,7 +9,7 @@ on:
         type: string
 
 permissions:
-  contents: write
+  contents: write  # Ensure the runner has write permissions for the repository
 
 jobs:
   create_branch:
@@ -18,7 +18,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
-        # Reference the GITHUB_TOKEN here for authentication
+        # Use the GITHUB_TOKEN for authentication
         token: ${{ secrets.GITHUB_TOKEN }}
         fetch-depth: 0
 
@@ -28,3 +28,6 @@ jobs:
         git checkout -b "${{ github.event.inputs.branch_name }}"
         # Push the new branch to the repository
         git push origin "${{ github.event.inputs.branch_name }}"
+      env:
+        # Ensure the token is provided
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
