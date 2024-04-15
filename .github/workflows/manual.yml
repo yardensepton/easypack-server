@@ -1,6 +1,5 @@
 name: Create Branch
 
-# This workflow can be triggered manually using the GitHub Actions UI.
 on:
   workflow_dispatch:
     inputs:
@@ -9,27 +8,23 @@ on:
         required: true
         type: string
 
-# Permissions granted to the GitHub Actions bot for this workflow.
 permissions:
-  contents: write  # Grant write permissions for repository contents
+  contents: write
 
 jobs:
-  create-branch:
-    # Specify the type of runner the job will run on.
+  create_branch:
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}  # Use the GITHUB_TOKEN provided by GitHub Actions
-        fetch-depth: 0  # Fetch the entire history to allow branch creation
+        # Reference the GITHUB_TOKEN here for authentication
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
 
     - name: Create new branch
       run: |
-        # Retrieve the branch name from the input provided when the workflow was triggered.
-        branch_name="${{ github.event.inputs.branch_name }}"
-        # Create the new branch.
-        git checkout -b "$branch_name"
-        # Push the new branch to the repository.
-        git push origin "$branch_name"
+        # Create a new branch with the provided name
+        git checkout -b "${{ github.event.inputs.branch_name }}"
+        # Push the new branch to the repository
+        git push origin "${{ github.event.inputs.branch_name }}"
