@@ -1,8 +1,4 @@
 import logging
-
-from fastapi import HTTPException
-from starlette import status
-
 from db import db
 from src.exceptions.item_not_found_error import ItemNotFoundError
 from src.repositories import db_handler

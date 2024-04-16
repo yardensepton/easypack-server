@@ -1,5 +1,3 @@
-from fastapi import HTTPException
-from starlette import status
 from datetime import datetime
 
 from src.entity.trip import Trip

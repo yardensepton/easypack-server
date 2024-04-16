@@ -1,7 +1,5 @@
 import logging
 import re
-from fastapi import HTTPException
-from starlette import status
 
 from db import db
 from src.entity.user import User

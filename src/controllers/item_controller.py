@@ -1,7 +1,3 @@
-from fastapi import HTTPException
-from starlette import status
-
-from src.exceptions.item_not_found_error import ItemNotFoundError
 from src.services.item_service import ItemService
 
 

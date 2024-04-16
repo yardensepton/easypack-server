@@ -1,6 +1,3 @@
-from fastapi import HTTPException
-from starlette import status
-
 from db import db
 from src.exceptions.calculation_not_found_error import CalculationNotFoundError
 from src.repositories import db_handler
