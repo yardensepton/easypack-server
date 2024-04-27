@@ -17,7 +17,7 @@ class UserService:
                         filemode='w')
 
     def create_user(self, user: User):
-        if self.check_user(user.email) and self.is_valid_email_format(user.email):
+        if self.check_user(user.email):
             return self.db_handler.insert_one(user)
 
     def check_user(self, email: str):
@@ -25,11 +25,11 @@ class UserService:
             raise UserAlreadyExistsError(email)
         return True
 
-    def is_valid_email_format(self, email):
-        email_regex = r"(^[-!#$%&'*+/=?^_`{|}~a-zA-Z0-9]+(\.[-\w]*)*@[-a-zA-Z0-9]+(\.[-\w]*)+\.?[a-zA-Z]{2,}$)"
-        if bool(re.match(email_regex, email)) is False:
-            raise InputError("Invalid email format")
-        return True
+    # def is_valid_email_format(self, email):
+    #     email_regex = r"(^[-!#$%&'*+/=?^_`{|}~a-zA-Z0-9]+(\.[-\w]*)*@[-a-zA-Z0-9]+(\.[-\w]*)+\.?[a-zA-Z]{2,}$)"
+    #     if bool(re.match(email_regex, email)) is False:
+    #         raise InputError("Invalid email format")
+    #     return True
 
     def get_user_by_id(self, user_id: str):
         user = self.db_handler.find_one("_id", user_id)

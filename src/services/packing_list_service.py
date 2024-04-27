@@ -1,6 +1,4 @@
-from fastapi import HTTPException
-from starlette import status
-
+from src.entity.packing_list import PackingList
 from src.exceptions.packing_list_already_exists_error import PackingListAlreadyExistsError
 from src.exceptions.packing_list_not_found_error import PackingListNotFoundError
 from src.repositories import db_handler
@@ -17,12 +15,11 @@ class PackingListService:
             return packing_list
         raise PackingListNotFoundError(list_id)
 
-    def create_packing_list(self, packing_list):
+    def create_packing_list(self, packing_list : PackingList):
         if self.check_trip_has_packing_list(packing_list.trip_id) is False:
             return self.db_handler.insert_one(packing_list)
         raise PackingListAlreadyExistsError(packing_list.trip_id)
-        # raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-        #                     detail=f"There is already a packing list to trip {packing_list.trip_id}")
+
 
     def check_trip_has_packing_list(self, trip_id) -> bool:
         packing_list = self.get_packing_list_by_trip_id(trip_id)
@@ -47,5 +44,3 @@ class PackingListService:
         packing_list = self.get_packing_list_by_id(list_id)
         if packing_list is not None:
             self.db_handler.delete_one("_id", list_id)
-        else:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"packing list {list_id} not found")

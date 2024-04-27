@@ -76,7 +76,7 @@ def construct_url(location: str, departure: str, arrival: str) -> str:
 #         return weather_data
 
 @router.post("", response_model=Trip)
-def create_trip(trip: Trip) -> Trip:
+async def create_trip(trip: Trip) -> Trip:
     try:
         user_controller.get_user_by_id(trip.user_id)
         return trip_controller.create_trip(trip)
@@ -89,7 +89,7 @@ def create_trip(trip: Trip) -> Trip:
 
 
 @router.get("/", response_model=Union[Trip, Optional[List[Trip]]])
-def get(trip_id: Optional[str] = Query(None, description="Trip ID"),
+async def get(trip_id: Optional[str] = Query(None, description="Trip ID"),
         user_id: Optional[str] = Query(None, description="User ID")):
     if trip_id is not None:
         try:
@@ -118,7 +118,7 @@ def get(trip_id: Optional[str] = Query(None, description="Trip ID"),
 
 
 @router.delete("/{trip_id}", response_model=None)
-def delete_trip_by_id(trip_id: str):
+async def delete_trip_by_id(trip_id: str):
     try:
         trip_controller.get_trip_by_id(trip_id)
         packing_list_controller.delete_packing_list_by_trip_id(trip_id)
@@ -128,7 +128,7 @@ def delete_trip_by_id(trip_id: str):
 
 
 @router.put("/{trip_id}", response_model=Trip)
-def update_trip_by_id(new_info: TripUpdate, trip_id: str):
+async def update_trip_by_id(new_info: TripUpdate, trip_id: str):
     try:
         trip_controller.get_trip_by_id(trip_id)
         return trip_controller.update_trip_by_id(new_info, trip_id)

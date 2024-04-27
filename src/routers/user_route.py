@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException
+from pydantic import ValidationError
 from starlette import status
 
 from src.controllers import UserController
@@ -19,9 +20,11 @@ trip_controller = TripController()
 
 
 @router.post("", response_model=User)
-def create_user(user: User):
+async def create_user(user: User):
     try:
         return user_controller.create_user(user)
+    except ValidationError as ve:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(ve))
     except InputError as ie:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(ie))
     except UserAlreadyExistsError as uae:
@@ -29,14 +32,14 @@ def create_user(user: User):
 
 
 @router.get("/{user_id}", response_model=User)
-def get_user_by_id(user_id: str):
+async def get_user_by_id(user_id: str):
     try:
         return user_controller.get_user_by_id(user_id)
     except UserNotFoundError as unf:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(unf))
 
 @router.delete("/{user_id}", response_model=None)
-def delete_user_by_id(user_id: str):
+async def delete_user_by_id(user_id: str):
     try:
         user_controller.get_user_by_id(user_id)
         trip_controller.delete_trips_by_user_id(user_id)
@@ -47,7 +50,7 @@ def delete_user_by_id(user_id: str):
 
 
 @router.put("/{user_id}", response_model=User)
-def update_user_by_id(new_info: UserUpdate, user_id: str):
+async def update_user_by_id(new_info: UserUpdate, user_id: str):
     try:
         return user_controller.update_user_by_id(new_info, user_id)
     except UserNotFoundError as unf:
