@@ -1,3 +1,4 @@
+from src.services.item_service import ItemService
 from src.services.packing_list_service import PackingListService
 
 
@@ -5,7 +6,7 @@ class PackingListController:
 
     def __init__(self):
         self.packing_list_service = PackingListService()
-
+        self.item_service = ItemService()
 
     def create_packing_list(self, packing_list):
         return self.packing_list_service.create_packing_list(packing_list)

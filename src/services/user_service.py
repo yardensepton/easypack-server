@@ -1,11 +1,12 @@
 import logging
-
-from fastapi import HTTPException
-from starlette import status
+import re
 
 from db import db
 from src.entity.user import User
-from src.repositories import  db_handler
+from src.exceptions.input_error import InputError
+from src.exceptions.user_already_exists_error import UserAlreadyExistsError
+from src.exceptions.user_not_found_error import UserNotFoundError
+from src.repositories import db_handler
 
 
 class UserService:
@@ -16,34 +17,30 @@ class UserService:
                         filemode='w')
 
     def create_user(self, user: User):
-        self.check_user(user.email)
-        return self.db_handler.insert_one(user)
+        if self.check_user(user.email):
+            return self.db_handler.insert_one(user)
 
     def check_user(self, email: str):
         if self.db_handler.find_one("email", email) is not None:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                                detail=f"user with email {email} already exists")
+            raise UserAlreadyExistsError(email)
+        return True
 
-    def get_user_by_email(self, email: str):
-        user = self.db_handler.find_one("email", email)
-        if user is not None:
-            return user
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"user with email {email} not found")
+    # def is_valid_email_format(self, email):
+    #     email_regex = r"(^[-!#$%&'*+/=?^_`{|}~a-zA-Z0-9]+(\.[-\w]*)*@[-a-zA-Z0-9]+(\.[-\w]*)+\.?[a-zA-Z]{2,}$)"
+    #     if bool(re.match(email_regex, email)) is False:
+    #         raise InputError("Invalid email format")
+    #     return True
 
     def get_user_by_id(self, user_id: str):
         user = self.db_handler.find_one("_id", user_id)
         if user is not None:
             return user
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"user {user_id} not found")
-
+        raise UserNotFoundError(user_id)
 
     def delete_user_by_id(self, user_id):
         user = self.db_handler.find_one("_id", user_id)
         if user is not None:
             self.db_handler.delete_one("_id", user_id)
-            logging.info(f"deleted user : {user_id}")
-        else:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"user {user_id} not found")
 
     def update_user_by_id(self, new_info, user_id):
         # adding the input values to a dict if they are not null
@@ -54,4 +51,4 @@ class UserService:
         updated = self.db_handler.find_one_and_update(new_info_dict, user_id)
         if updated is not None:
             return updated
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"user {user_id} not found")
+        raise UserNotFoundError(user_id)

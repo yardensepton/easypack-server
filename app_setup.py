@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from src.routers import user_route, item_route, trip_route, packing_list_route
-from src.routers.trip_route import trip_controller
 
 
 def create_app() -> FastAPI:
