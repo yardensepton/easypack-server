@@ -74,11 +74,8 @@ def construct_url(location: str, departure: str, arrival: str) -> str:
 
 @router.post("", response_model=Trip)
 async def create_trip(trip: Trip) -> Trip:
-    # try:
-        user_controller.get_user_by_id(trip.user_id)
-        return trip_controller.create_trip(trip)
-    # except ValueError as ve:
-    #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(ve))
+    user_controller.get_user_by_id(trip.user_id)
+    return trip_controller.create_trip(trip)
 
 
 @router.get("/", response_model=Union[Trip, Optional[List[Trip]]])
