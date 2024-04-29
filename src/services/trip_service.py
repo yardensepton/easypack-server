@@ -1,9 +1,10 @@
 from datetime import datetime
+from typing import List
 
 from src.entity.trip import Trip
-from src.entity.update_trip import TripUpdate
+from src.entity.trip_schema import TripSchema
 from src.exceptions.input_error import InputError
-from src.exceptions.trip_not_found_error import TripNotFoundError
+from src.exceptions.not_found_error import NotFoundError
 from src.repositories import db_handler
 from db import db
 
@@ -13,40 +14,27 @@ class TripService:
         self.db_handler = db_handler.DBHandler(db, "TRIPS")
 
 
-    def validate_date(self, departure_date: str, return_date: str) -> bool:
-        # Parse date strings into datetime.date objects
-        date1 = self.parse_date(departure_date)
-        date2 = self.parse_date(return_date)
-
-        # Check if date2 is before date1
-        if date2 < date1:
-            raise InputError("Return date is before departure date")
-        return True
-
-
-    def create_trip(self, trip):
+    def create_trip(self, trip:Trip):
         # if user is not None:
         user_id = trip.user_id
-        if self.validate_date(trip.departure_date, trip.return_date) and self.availability_within_date_range(
+        if self.availability_within_date_range(
                 user_id, trip):
             inserted_trip = self.db_handler.insert_one(trip)
             return inserted_trip
 
-
-    def get_trip_by_id(self, trip_id):
+    def get_trip_by_id(self, trip_id:str):
         trip = self.db_handler.find_one("_id", trip_id)
         if trip is not None:
             return trip
-        raise TripNotFoundError(trip_id)
+        raise NotFoundError(obj_name="Trip", obj_id=trip_id)
 
-
-    def get_trips_by_user_id(self, user_id):
+    def get_trips_by_user_id(self, user_id:str):
         trips = self.db_handler.find({"user_id": user_id})
         if len(trips) != 0:
             return trips
-        return None
+        return []
 
-
+    # todo : this func needs to be moved to the controller.
     def availability_within_date_range(self, user_id: str, new_trip: Trip) -> bool:
         trips = self.get_trips_by_user_id(user_id=user_id)
         if trips is None:
@@ -69,27 +57,23 @@ class TripService:
         # No trip found within the date range
         return True
 
-
     def parse_date(self, date_str: str) -> datetime:
         try:
             return datetime.strptime(date_str, "%Y-%m-%d")
         except ValueError:
-            raise ValueError ("Invalid date format. Expected format: YYYY-MM-DD")
+            raise ValueError("Invalid date format. Expected format: YYYY-MM-DD")
 
-
-    def delete_trips_by_user_id(self, user_id):
+    def delete_trips_by_user_id(self, user_id:str):
         trips = self.get_trips_by_user_id(user_id)
         if trips is not None:
             self.db_handler.delete_many({"user_id": user_id})
-
 
     def delete_trip_by_id(self, trip_id):
         trip = self.get_trip_by_id(trip_id)
         if trip is not None:
             self.db_handler.delete_one("_id", trip_id)
 
-
-    def is_updated_trip_within_date_range(self, user_id: str, new_info: TripUpdate,
+    def is_updated_trip_within_date_range(self, user_id: str, new_info: TripSchema,
                                           update_trip_id: str) -> bool:
         # TODO - fix this function
         """
@@ -132,15 +116,14 @@ class TripService:
                             return True
         return False
 
-
-    def update_trip_by_id(self, new_info, trip_id):
+    def update_trip_by_id(self, new_info:TripSchema, trip_id:str):
         # adding the input values to a dict if they are not null
         trip_dict = self.get_trip_by_id(trip_id)
         trip = Trip(**trip_dict)
         print(trip.user_id)
         if new_info.return_date is not None or new_info.departure_date is not None:
             if self.is_updated_trip_within_date_range(trip.user_id, new_info, trip_id) is False:
-                raise ImportError("trouble with new dates given")
+                raise InputError("trouble with new dates given")
         new_info_dict = {
             k: v for k, v in new_info.model_dump(by_alias=True).items() if v is not None
         }

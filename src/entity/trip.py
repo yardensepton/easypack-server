@@ -1,14 +1,17 @@
 from typing import Optional, Annotated
-from pydantic import BaseModel, Field, ConfigDict, BeforeValidator
+
+from bson import ObjectId
+from pydantic import Field, ConfigDict, BeforeValidator, field_validator
+
+from src.entity.trip_schema import TripSchema
+from src.exceptions.input_error import InputError
 
 PyObjectId = Annotated[str, BeforeValidator(str)]
 
-class Trip(BaseModel):
+
+class Trip(TripSchema):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     user_id: str
-    destination: str
-    departure_date: str
-    return_date: str
     model_config = ConfigDict(
         populate_by_name=True,
         arbitrary_types_allowed=True,
@@ -22,3 +25,13 @@ class Trip(BaseModel):
         },
     )
 
+
+    @field_validator('user_id')
+    @classmethod
+    def is_valid_user_id(cls, user_id: str) -> str:
+        if user_id is not None:
+            try:
+                ObjectId(user_id)
+            except Exception:
+                raise InputError(f"'{user_id}' is not a valid ObjectId")
+        return user_id

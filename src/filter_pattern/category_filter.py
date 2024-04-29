@@ -6,4 +6,4 @@ class CategoryFilter(Filter):
         self.category = category
 
     def apply(self, items):
-        return [item for item in items if item["category"] == self.category ]
+            return [item for item in items if item["category"] == self.category ]

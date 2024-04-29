@@ -7,10 +7,7 @@ from src.controllers import UserController
 from src.controllers.packing_list_controller import PackingListController
 from src.controllers.trip_controller import TripController
 from src.entity.trip import Trip
-from src.entity.update_trip import TripUpdate
-from src.exceptions.input_error import InputError
-from src.exceptions.trip_not_found_error import TripNotFoundError
-from src.exceptions.user_not_found_error import UserNotFoundError
+from src.entity.trip_schema import TripSchema
 
 router = APIRouter(
     prefix="/trips",
@@ -77,38 +74,24 @@ def construct_url(location: str, departure: str, arrival: str) -> str:
 
 @router.post("", response_model=Trip)
 async def create_trip(trip: Trip) -> Trip:
-    try:
+    # try:
         user_controller.get_user_by_id(trip.user_id)
         return trip_controller.create_trip(trip)
-    except UserNotFoundError as unf:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(unf))
-    except ValueError as ve:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(ve))
-    except InputError as de:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(de))
+    # except ValueError as ve:
+    #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(ve))
 
 
 @router.get("/", response_model=Union[Trip, Optional[List[Trip]]])
 async def get(trip_id: Optional[str] = Query(None, description="Trip ID"),
-        user_id: Optional[str] = Query(None, description="User ID")):
+              user_id: Optional[str] = Query(None, description="User ID")):
     if trip_id is not None:
-        try:
-            return trip_controller.get_trip_by_id(trip_id)
-        except TripNotFoundError as tnf:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(tnf))
-
-
+        return trip_controller.get_trip_by_id(trip_id)
     elif user_id is not None:
-        try:
-            user_controller.get_user_by_id(user_id)
-        except UserNotFoundError as e:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
-
+        user_controller.get_user_by_id(user_id)
         trips = trip_controller.get_trips_by_user_id(user_id)
         if trips is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No trips found for this user")
         return trips
-
         # If neither trip_id nor user_id is provided, return all trips
     else:
         trips = trip_controller.get_all_trips()
@@ -119,20 +102,12 @@ async def get(trip_id: Optional[str] = Query(None, description="Trip ID"),
 
 @router.delete("/{trip_id}", response_model=None)
 async def delete_trip_by_id(trip_id: str):
-    try:
-        trip_controller.get_trip_by_id(trip_id)
-        packing_list_controller.delete_packing_list_by_trip_id(trip_id)
-        trip_controller.delete_trip_by_id(trip_id)
-    except TripNotFoundError as tnf:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(tnf))
+    trip_controller.get_trip_by_id(trip_id)
+    packing_list_controller.delete_packing_list_by_trip_id(trip_id)
+    trip_controller.delete_trip_by_id(trip_id)
 
 
 @router.put("/{trip_id}", response_model=Trip)
-async def update_trip_by_id(new_info: TripUpdate, trip_id: str):
-    try:
-        trip_controller.get_trip_by_id(trip_id)
-        return trip_controller.update_trip_by_id(new_info, trip_id)
-    except TripNotFoundError as tnf:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(tnf))
-    except InputError as ie:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(ie))
+async def update_trip_by_id(new_info: TripSchema, trip_id: str):
+    trip_controller.get_trip_by_id(trip_id)
+    return trip_controller.update_trip_by_id(new_info, trip_id)
