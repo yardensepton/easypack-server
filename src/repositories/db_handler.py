@@ -8,6 +8,9 @@ from src.repositories.db_handler_base import DBHandlerBase
 
 class DBHandler(DBHandlerBase):
 
+    def exists(self, key: str, value: str) -> Any:
+        return self.collection.count_documents({key: value}) > 0
+
     def delete_many(self, keys_and_values: dict[str, str]) -> Any:
         return self.collection.delete_many(keys_and_values)
 
@@ -50,7 +53,7 @@ class DBHandler(DBHandlerBase):
             else:
                 return None
 
-    def add_object_id(self, key, value):
+    def add_object_id(self, key:str, value:str)->str:
         if key == '_id':
             value = ObjectId(value)
         return value

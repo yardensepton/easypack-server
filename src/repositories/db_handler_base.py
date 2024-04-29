@@ -24,15 +24,17 @@ class DBHandlerBase(ABC):
     def find(self, keys_and_values: dict[str, str]) -> List[Any]:
         pass
 
-
     @abstractmethod
     def find_all(self) -> List[Any]:
         pass
 
     @abstractmethod
-    def find_one_and_update(self,  new_info, key) -> Any:
+    def find_one_and_update(self, new_info:Any, key:str) -> Any:
         pass
 
+    @abstractmethod
+    def exists(self, key: str, value: str) -> Any:
+        pass
 
     # @abstractmethod
     # def update_object_by(self, value: Any) -> Any:

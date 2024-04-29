@@ -1,5 +1,6 @@
 from typing import List
 
+from src.entity.item import Item
 from src.filter_pattern.category_filter import CategoryFilter
 from src.filter_pattern.filter import Filter
 from src.filter_pattern.gender_filter import GenderFilter
@@ -12,23 +13,19 @@ class ItemController:
     def __init__(self):
         self.itemService = ItemService()
 
-    def get_all_items_by_category(self, category: str):
-        return self.itemService.get_all_items_by_category(category)
-
-    def get_all_items_by_season(self, season: str):
-        return self.itemService.get_all_items_by_season(season)
-
     def get_all_items(self):
         return self.itemService.get_all_items()
-
 
     def get_category_items_and_calculation(self, category: str):
         return self.itemService.get_category_items_and_calculation(category)
 
-    def get_all_items_by_gender(self, gender):
-        return self.itemService.get_all_items_by_gender(gender)
+    def filter_items_by(self, category: str = None, season: str = None, gender: str = None) -> List[Item]:
 
-    def filter_items_by(self, category: str = None, season: str = None, gender: str = None):
+        if (category and not self.itemService.exists("category", category)) or (
+                gender and not self.itemService.exists("gender", gender)) or (
+                season and not self.itemService.exists("season", season)):
+            return []
+
         all_items = self.get_all_items()
 
         filters: List[Filter] = []

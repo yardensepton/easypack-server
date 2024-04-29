@@ -1,5 +1,6 @@
 from src.controllers.packing_list_controller import PackingListController
 from src.entity.trip import Trip
+from src.entity.trip_schema import TripSchema
 from src.services.trip_service import TripService
 
 
@@ -9,20 +10,20 @@ class TripController:
         self.trip_service = TripService()
         self.packing_list_controller = PackingListController()
 
-    def create_trip(self, trip):
-        return self.trip_service.create_trip(trip)
+    def create_trip(self, trip:Trip):
+        return self.trip_service.create_trip(trip=trip)
 
-    def get_trip_by_id(self, trip_id):
-        return self.trip_service.get_trip_by_id(trip_id)
+    def get_trip_by_id(self, trip_id:str):
+        return self.trip_service.get_trip_by_id(trip_id=trip_id)
 
-    def get_trips_by_user_id(self, user_id):
-        return self.trip_service.get_trips_by_user_id(user_id)
+    def get_trips_by_user_id(self, user_id:str):
+        return self.trip_service.get_trips_by_user_id(user_id=user_id)
 
-    def delete_trip_by_id(self, trip_id):
-        self.trip_service.delete_trip_by_id(trip_id)
+    def delete_trip_by_id(self, trip_id:str):
+        self.trip_service.delete_trip_by_id(trip_id=trip_id)
 
-    def delete_trips_by_user_id(self, user_id):
-        trips = self.get_trips_by_user_id(user_id)
+    def delete_trips_by_user_id(self, user_id:str):
+        trips = self.get_trips_by_user_id(user_id=user_id)
         if trips is not None:
             for trip_data in trips:
                 trip = Trip(**trip_data)
@@ -32,7 +33,7 @@ class TripController:
                     self.packing_list_controller.delete_packing_list_by_trip_id(trip_id)
                     self.delete_trip_by_id(trip_id)
 
-    def update_trip_by_id(self, new_info, trip_id):
+    def update_trip_by_id(self, new_info:TripSchema, trip_id:str):
         return self.trip_service.update_trip_by_id(new_info, trip_id)
 
     def get_all_trips(self):
