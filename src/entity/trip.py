@@ -1,10 +1,8 @@
 from typing import Optional, Annotated
-
-from bson import ObjectId
-from pydantic import Field, ConfigDict, BeforeValidator, field_validator
+from pydantic import Field, ConfigDict, BeforeValidator
 
 from src.entity.trip_schema import TripSchema
-from src.exceptions.input_error import InputError
+
 
 PyObjectId = Annotated[str, BeforeValidator(str)]
 
@@ -25,13 +23,3 @@ class Trip(TripSchema):
         },
     )
 
-
-    @field_validator('user_id')
-    @classmethod
-    def is_valid_user_id(cls, user_id: str) -> str:
-        if user_id is not None:
-            try:
-                ObjectId(user_id)
-            except Exception:
-                raise InputError(f"'{user_id}' is not a valid ObjectId")
-        return user_id

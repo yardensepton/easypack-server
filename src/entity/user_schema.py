@@ -24,7 +24,7 @@ class UserSchema(BaseModel):
 
     @field_validator('gender')
     @classmethod
-    def call_is_valid_gender(cls, gender: str) -> str:
+    def is_valid_gender(cls, gender: str) -> str:
         if gender not in (g.value for g in GenderOptions):
             raise InputError("Invalid gender value")
         return gender

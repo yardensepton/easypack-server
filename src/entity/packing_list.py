@@ -1,10 +1,8 @@
-from typing import Optional, Annotated, Dict, List
+from typing import Optional, Annotated, List
 
-from bson import ObjectId
-from pydantic import BaseModel, Field, BeforeValidator, ConfigDict, field_validator
+from pydantic import BaseModel, Field, BeforeValidator, ConfigDict
 
 from src.entity.item_boundary import ItemBoundary
-from src.exceptions.input_error import InputError
 
 PyObjectId = Annotated[str, BeforeValidator(str)]
 
@@ -23,14 +21,3 @@ class PackingList(BaseModel):
             }
         },
     )
-
-    @field_validator('trip_id')
-    @classmethod
-    def is_valid_trip_id(cls, trip_id: str) -> str:
-        if trip_id is not None:
-            try:
-                ObjectId(trip_id)
-            except Exception:
-                raise InputError(f"'{trip_id}' is not a valid ObjectId")
-        return trip_id
-

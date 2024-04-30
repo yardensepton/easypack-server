@@ -1,6 +1,3 @@
-from typing import List
-
-from src.entity.item_boundary import ItemBoundary
 from src.entity.packing_list import PackingList
 from src.entity.packing_list_schema import PackingListSchema
 from src.services.item_service import ItemService
