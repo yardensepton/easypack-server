@@ -40,7 +40,7 @@ class DBHandler(DBHandlerBase):
         cursor: Cursor = self.collection.find()
         return list(cursor)
 
-    def find_one_and_update(self, new_info, key) -> Any:
+    def find_one_and_update(self, new_info:Any, key:str) -> Any:
         if len(new_info) >= 1:
             update_result = self.collection.find_one_and_update(
                 {"_id": ObjectId(key)},

@@ -1,4 +1,8 @@
+from typing import List
+
+from src.entity.item_boundary import ItemBoundary
 from src.entity.packing_list import PackingList
+from src.entity.packing_list_schema import PackingListSchema
 from src.services.item_service import ItemService
 from src.services.packing_list_service import PackingListService
 
@@ -23,3 +27,6 @@ class PackingListController:
 
     def delete_packing_list_by_trip_id(self,trip_id:str):
         return self.packing_list_service.delete_packing_list_by_trip_id(trip_id=trip_id)
+
+    def update_packing_list_by_id(self, new_info:PackingListSchema, list_id):
+        return self.packing_list_service.update_packing_list_by_id(new_info=new_info,list_id=list_id)
