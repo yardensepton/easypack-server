@@ -3,6 +3,7 @@ from pymongo.cursor import Cursor
 from pymongo.database import Database
 from typing import Any, List
 from bson import ObjectId
+
 from src.repositories.db_handler_base import DBHandlerBase
 
 
@@ -40,7 +41,7 @@ class DBHandler(DBHandlerBase):
         cursor: Cursor = self.collection.find()
         return list(cursor)
 
-    def find_one_and_update(self, new_info:Any, key:str) -> Any:
+    def find_one_and_update(self, new_info: Any, key: str) -> Any:
         if len(new_info) >= 1:
             update_result = self.collection.find_one_and_update(
                 {"_id": ObjectId(key)},
@@ -53,7 +54,7 @@ class DBHandler(DBHandlerBase):
             else:
                 return None
 
-    def add_object_id(self, key:str, value:str)->str:
+    def add_object_id(self, key: str, value: str) -> str:
         if key == '_id':
             value = ObjectId(value)
         return value

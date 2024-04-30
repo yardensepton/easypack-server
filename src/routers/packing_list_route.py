@@ -5,7 +5,6 @@ from starlette import status
 
 from src.controllers.packing_list_controller import PackingListController
 from src.controllers.trip_controller import TripController
-from src.entity.item_boundary import ItemBoundary
 from src.entity.packing_list import PackingList
 from src.entity.packing_list_schema import PackingListSchema
 

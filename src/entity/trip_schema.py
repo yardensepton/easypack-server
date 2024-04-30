@@ -22,10 +22,12 @@ class TripSchema(BaseModel):
 
     @model_validator(mode='after')
     def check_valid_dates(self) -> Self:
-        date1 = self.parse_date(self.departure_date)
-        date2 = self.parse_date(self.return_date)
-        if date1 > date2:
-            raise InputError("Return date is before departure date")
+        if self.departure_date and self.return_date:
+            date1 = self.parse_date(self.departure_date)
+            date2 = self.parse_date(self.return_date)
+            if date1 > date2:
+                raise InputError("Return date is before departure date")
+            return self
         return self
 
     def parse_date(self, value):

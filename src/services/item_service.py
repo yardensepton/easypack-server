@@ -1,5 +1,4 @@
 import logging
-from typing import List
 
 from db import db
 from src.entity.item_boundary import ItemBoundary

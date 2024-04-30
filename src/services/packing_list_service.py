@@ -1,6 +1,3 @@
-from typing import List, Dict
-
-from src.entity.item_boundary import ItemBoundary
 from src.entity.packing_list import PackingList
 from src.entity.packing_list_schema import PackingListSchema
 from src.exceptions.already_exists_error import AlreadyExistsError
@@ -48,7 +45,7 @@ class PackingListService:
         if packing_list is not None:
             self.db_handler.delete_one("_id", list_id)
 
-    def update_packing_list_by_id(self, new_info:PackingListSchema, list_id: str):
+    def update_packing_list_by_id(self, new_info: PackingListSchema, list_id: str):
         new_info_dict = {
             k: v for k, v in new_info.model_dump(by_alias=True).items() if v is not None
         }
@@ -58,5 +55,3 @@ class PackingListService:
         if updated is not None:
             return updated
         raise NotFoundError(obj_name="list", obj_id=list_id)
-
-

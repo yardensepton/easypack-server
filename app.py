@@ -20,3 +20,11 @@ async def handle_not_found_error(request :Request,exc: AlreadyExistsError):
 @app.exception_handler(ValidationError)
 async def handle_validation_error(request :Request,exc: ValidationError):
     return validation_error_exception_handler(request ,exc)
+
+@app.exception_handler(InvalidId)
+async def handle_invalid_id_error(request :Request,exc: InvalidId):
+    return invalid_object_id_exception_handler(request ,exc)
+
+@app.exception_handler(ValueError)
+async def handle_invalid_id_error(request :Request,exc: ValueError):
+    return value_error_exception_handler(request ,exc)
