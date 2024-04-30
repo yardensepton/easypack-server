@@ -3,11 +3,9 @@ from typing import List, Optional, Union
 from fastapi import APIRouter, Query, HTTPException
 from starlette import status
 
-
 from src.controllers.packing_list_controller import PackingListController
 from src.controllers.trip_controller import TripController
 from src.entity.packing_list import PackingList
-
 
 router = APIRouter(
     prefix="/packing-lists",
@@ -41,9 +39,8 @@ async def get(trip_id: Optional[str] = Query(None, description="Trip ID"),
 
 @router.delete("/{list_id}", response_model=None)
 async def delete_packing_list_by_id(list_id: str):
-        list_controller.get_packing_list_by_id(list_id)
-        list_controller.delete_packing_list_by_id(list_id)
-
+    list_controller.get_packing_list_by_id(list_id)
+    list_controller.delete_packing_list_by_id(list_id)
 
 # @router.put("/{list_id}", response_model=Trip)
 # def update_packing_list_by_id(new_info: ListUpdate, list_id: str):
