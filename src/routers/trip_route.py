@@ -36,18 +36,6 @@ def construct_url(location: str, departure: str, arrival: str) -> str:
 # @router.get("/{location}")
 # async def get_weather(location: str, departure: str = Query(None, description="Departure date (YYYY-MM-DD)"),
 #                       arrival: str = Query(None, description="Arrival date (YYYY-MM-DD)")) -> dict:
-#     # Validate the departure and arrival dates if provided
-#     if departure:
-#         try:
-#             date_parser.parse(departure)
-#         except ValueError:
-#             raise HTTPException(status_code=400, detail="Invalid departure date format. Please use YYYY-MM-DD.")
-#     if arrival:
-#         try:
-#             date_parser.parse(arrival)
-#         except ValueError:
-#             raise HTTPException(status_code=400, detail="Invalid arrival date format. Please use YYYY-MM-DD.")
-#
 #     # Construct the URL using the location and optional dates
 #     url = construct_url(location, departure, arrival)
 #
@@ -92,7 +80,7 @@ async def get(trip_id: Optional[str] = Query(None, description="Trip ID"),
         # If neither trip_id nor user_id is provided, return all trips
     else:
         trips = trip_controller.get_all_trips()
-        if trips is None:
+        if len(trips)==0:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="There are no trips in the DB")
         return trips
 

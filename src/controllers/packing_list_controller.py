@@ -27,3 +27,6 @@ class PackingListController:
 
     def update_packing_list_by_id(self, new_info:PackingListSchema, list_id):
         return self.packing_list_service.update_packing_list_by_id(new_info=new_info,list_id=list_id)
+
+    def get_all_packing_lists(self):
+        return self.packing_list_service.get_all_packing_lists()

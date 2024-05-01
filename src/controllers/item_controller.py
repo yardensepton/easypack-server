@@ -1,6 +1,7 @@
 from typing import List
 
 from src.entity.item import Item
+from src.exceptions.input_error import InputError
 from src.filter_pattern.category_filter import CategoryFilter
 from src.filter_pattern.filter import Filter
 from src.filter_pattern.gender_filter import GenderFilter
@@ -24,7 +25,7 @@ class ItemController:
         if (category and not self.itemService.exists("category", category)) or (
                 gender and not self.itemService.exists("gender", gender)) or (
                 season and not self.itemService.exists("season", season)):
-            return []
+           raise InputError("No items found matching the filters.")
 
         all_items = self.get_all_items()
 
