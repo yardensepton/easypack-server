@@ -55,3 +55,6 @@ class PackingListService:
         if updated is not None:
             return updated
         raise NotFoundError(obj_name="list", obj_id=list_id)
+
+    def get_all_packing_lists(self):
+        return self.db_handler.find_all()

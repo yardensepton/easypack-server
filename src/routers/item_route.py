@@ -20,12 +20,7 @@ async def get(category: str = Query(None, description="category"),
               season: str = Query(None, description="season"),
               gender: str = Query(None, description="gender")
               ):
-    # try:
-    items = item_controller.filter_items_by(category, season, gender)
-    if len(items) == 0:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No items found matching the filters.")
-    return items
-
+    return item_controller.filter_items_by(category, season, gender)
 
 @router.get("/amount-by", response_model=List[ItemBoundary])
 async def get_category_items_and_calculation(category: str = Query(..., description="category")):

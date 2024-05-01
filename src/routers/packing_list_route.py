@@ -36,6 +36,11 @@ async def get(trip_id: Optional[str] = Query(None, description="Trip ID"),
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                                 detail=f"Trip {trip_id} doesn't have a packing list")
         return packing_list
+    else:
+        packing_lists = list_controller.get_all_packing_lists()
+        if len(packing_lists) ==0:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="There are no packing lists in the DB")
+        return packing_lists
 
 
 @router.delete("/{list_id}", response_model=None)
