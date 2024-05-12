@@ -15,27 +15,27 @@ class UserService:
     logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', filename='app.log',
                         filemode='w')
 
-    def create_user(self, user: User):
+    def create_user(self, user: User) -> User:
         if self.check_user(user.email):
             return self.db_handler.insert_one(user)
 
-    def check_user(self, email: str)->bool:
+    def check_user(self, email: str) -> bool:
         if self.db_handler.find_one("email", email) is not None:
-            raise AlreadyExistsError("user",email)
+            raise AlreadyExistsError("user", email)
         return True
 
-    def get_user_by_id(self, user_id: str):
+    def get_user_by_id(self, user_id: str) -> User:
         user = self.db_handler.find_one("_id", user_id)
         if user is not None:
             return user
-        raise NotFoundError(obj_name="user",obj_id=user_id)
+        raise NotFoundError(obj_name="user", obj_id=user_id)
 
-    def delete_user_by_id(self, user_id:str):
+    def delete_user_by_id(self, user_id: str):
         user = self.db_handler.find_one("_id", user_id)
         if user is not None:
             self.db_handler.delete_one("_id", user_id)
 
-    def update_user_by_id(self, new_info:UserSchema, user_id:str):
+    def update_user_by_id(self, new_info: UserSchema, user_id: str) -> User:
         # adding the input values to a dict if they are not null
         new_info_dict = {
             k: v for k, v in new_info.model_dump(by_alias=True).items() if v is not None

@@ -5,6 +5,7 @@ from pydantic import BaseModel, ConfigDict, field_validator
 from src.enums.gender_options import GenderOptions
 from src.exceptions.input_error import InputError
 
+
 class UserSchema(BaseModel):
     name: Optional[str] = None
     gender: Optional[str] = None
@@ -20,7 +21,6 @@ class UserSchema(BaseModel):
             }
         },
     )
-
 
     @field_validator('gender')
     @classmethod
