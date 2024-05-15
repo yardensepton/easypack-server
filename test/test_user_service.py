@@ -7,7 +7,7 @@ from src.services.user_service import UserService
 class TestUserService(unittest.TestCase):
     def setUp(self):
         # Set up the mock for DBHandler
-        self.mock_db_handler = patch('src.services.user_service.db_handler.DBHandler', autospec=True).start()
+        self.mock_db_handler = patch('src.services.user_service.UsersDB', autospec=True).start()
         self.addCleanup(patch.stopall)  # Ensure patches are cleaned up after each test
         self.user_service = UserService()
         self.user_id = 'test_user_id'
