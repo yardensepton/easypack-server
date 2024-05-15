@@ -1,11 +1,10 @@
 from typing import List
 
-from fastapi import APIRouter, Query, HTTPException
-from starlette import status
+from fastapi import APIRouter, Query
 
 from src.controllers.item_controller import ItemController
 from src.entity.item import Item
-from src.entity.item_boundary import ItemBoundary
+from src.entity.item_and_calculation import ItemAndCalculation
 
 router = APIRouter(
     prefix="/items",
@@ -15,13 +14,14 @@ router = APIRouter(
 item_controller = ItemController()
 
 
-@router.get("/", response_model=List[Item])
+@router.get("", response_model=List[Item])
 async def get(category: str = Query(None, description="category"),
               season: str = Query(None, description="season"),
               gender: str = Query(None, description="gender")
               ):
     return item_controller.filter_items_by(category, season, gender)
 
-@router.get("/amount-by", response_model=List[ItemBoundary])
+
+@router.get("/amount-by", response_model=List[ItemAndCalculation])
 async def get_category_items_and_calculation(category: str = Query(..., description="category")):
     return item_controller.get_category_items_and_calculation(category)

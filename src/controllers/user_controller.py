@@ -10,14 +10,14 @@ class UserController:
         self.user_service = UserService()
 
     def create_user(self, user: User) -> User:
-        if validate_non_none_fields(obj=user) is False:
+        if validate_non_none_fields(obj=user) is True:
             return self.user_service.create_user(user)
 
-    def get_user_by_id(self, user_id: str):
+    def get_user_by_id(self, user_id: str) -> User:
         return self.user_service.get_user_by_id(user_id)
 
     def delete_user_by_id(self, user_id: str):
         self.user_service.delete_user_by_id(user_id)
 
-    def update_user_by_id(self, new_info: UserSchema, user_id: str):
+    def update_user_by_id(self, new_info: UserSchema, user_id: str) -> User:
         return self.user_service.update_user_by_id(new_info, user_id)

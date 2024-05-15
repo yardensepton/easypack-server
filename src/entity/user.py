@@ -1,14 +1,13 @@
-from typing import Annotated, Optional
-from pydantic import Field, BeforeValidator, ConfigDict, field_validator
+import typing
+
+from src.entity import Field, PyObjectId, ConfigDict,field_validator
 from src.entity.user_schema import UserSchema
 import re
 from src.exceptions.input_error import InputError
 
-PyObjectId = Annotated[str, BeforeValidator(str)]
-
 
 class User(UserSchema):
-    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    id: typing.Optional[PyObjectId] = Field(alias="_id", default=None)
     email: str
     model_config = ConfigDict(
         populate_by_name=True,

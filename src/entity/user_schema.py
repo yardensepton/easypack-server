@@ -1,7 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel, ConfigDict, field_validator
-
+from src.entity import BaseModel, ConfigDict, field_validator
 from src.enums.gender_options import GenderOptions
 from src.exceptions.input_error import InputError
 

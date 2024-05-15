@@ -1,13 +1,15 @@
 from datetime import datetime
 from typing import Optional, Self
-from pydantic import BaseModel, ConfigDict, model_validator
+
+from src.entity import BaseModel, ConfigDict,model_validator
 
 from src.exceptions.input_error import InputError
 
+
 class TripSchema(BaseModel):
-    destination:  Optional[str] = None
-    departure_date:  Optional[str] = None
-    return_date:  Optional[str] = None
+    destination: Optional[str] = None
+    departure_date: Optional[str] = None
+    return_date: Optional[str] = None
     model_config = ConfigDict(
         populate_by_name=True,
         arbitrary_types_allowed=True,

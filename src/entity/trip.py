@@ -1,14 +1,11 @@
-from typing import Optional, Annotated
-from pydantic import Field, ConfigDict, BeforeValidator
+import typing
 
+from src.entity import Field, PyObjectId, ConfigDict
 from src.entity.trip_schema import TripSchema
 
 
-PyObjectId = Annotated[str, BeforeValidator(str)]
-
-
 class Trip(TripSchema):
-    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    id: typing.Optional[PyObjectId] = Field(alias="_id", default=None)
     user_id: str
     model_config = ConfigDict(
         populate_by_name=True,
@@ -22,4 +19,3 @@ class Trip(TripSchema):
             }
         },
     )
-

@@ -1,47 +1,40 @@
 from abc import ABC, abstractmethod
-from typing import Any, List
+from typing import List, Optional, Dict
+
+from src.repositories import T
 
 
 class DBHandlerBase(ABC):
 
     @abstractmethod
-    def insert_one(self, value: Any) -> Any:
+    def insert_one(self, value: T) -> T:
         pass
 
     @abstractmethod
-    def find_one(self, key: str, value: str) -> Any:
+    def find_one(self, key: str, value: str) -> T:
         pass
 
     @abstractmethod
-    def delete_one(self, key: str, value: str) -> Any:
+    def delete_one(self, key: str, value: str) -> None:
         pass
 
     @abstractmethod
-    def delete_many(self, keys_and_values: dict[str, str]) -> Any:
+    def delete_many(self, keys_and_values: dict[str, str]) -> None:
         pass
 
     @abstractmethod
-    def find(self, keys_and_values: dict[str, str]) -> List[Any]:
+    def find(self, keys_and_values: dict[str, str]) -> List[T]:
         pass
 
     @abstractmethod
-    def find_all(self) -> List[Any]:
+    def find_all(self) -> List[T]:
         pass
 
     @abstractmethod
-    def find_one_and_update(self, new_info:Any, key:str) -> Any:
+    def find_one_and_update(self, new_info: Dict, key: str) -> Optional[T]:
         pass
 
     @abstractmethod
-    def exists(self, key: str, value: str) -> Any:
+    def exists(self, key: str, value: str) -> bool:
         pass
 
-    # @abstractmethod
-    # def update_object_by(self, value: Any) -> Any:
-    #     pass
-    #
-    # def delete_object_by(self, key: str, value: str) -> Any:
-    #     pass
-    #
-    # def get_all_objects_by(self, key: str, value: str) -> List[Any]:
-    #     pass

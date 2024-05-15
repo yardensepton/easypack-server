@@ -66,7 +66,7 @@ async def create_trip(trip: Trip) -> Trip:
     return trip_controller.create_trip(trip)
 
 
-@router.get("/", response_model=Union[Trip, Optional[List[Trip]]])
+@router.get("", response_model=Union[Trip, Optional[List[Trip]]])
 async def get(trip_id: Optional[str] = Query(None, description="Trip ID"),
               user_id: Optional[str] = Query(None, description="User ID")):
     if trip_id is not None:
@@ -74,13 +74,13 @@ async def get(trip_id: Optional[str] = Query(None, description="Trip ID"),
     elif user_id is not None:
         user_controller.get_user_by_id(user_id)
         trips = trip_controller.get_trips_by_user_id(user_id)
-        if trips is None:
+        if trips is None or len(trips) == 0:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No trips found for this user")
         return trips
         # If neither trip_id nor user_id is provided, return all trips
     else:
         trips = trip_controller.get_all_trips()
-        if len(trips)==0:
+        if trips is None or len(trips) == 0:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="There are no trips in the DB")
         return trips
 
