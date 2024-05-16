@@ -6,3 +6,4 @@ starlette
 httpx
 pytest==8.1.2
 mongomock
+python-dotenv
