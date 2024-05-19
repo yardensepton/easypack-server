@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from src.routers import user_route, item_route, trip_route, packing_list_route, city_names, weather_route
+from src.routers import user_route, item_route, trip_route, packing_list_route, city_route, weather_route
 
 
 def create_app() -> FastAPI:
@@ -20,7 +20,7 @@ def create_app() -> FastAPI:
         packing_list_route.router
     )
     app.include_router(
-        city_names.router
+        city_route.router
     )
 
     app.include_router(
@@ -29,15 +29,15 @@ def create_app() -> FastAPI:
 
     # Configure CORS
     origins = [
-        "http://localhost",  # Allow requests from localhost
-        "http://localhost:54689",  # Allow requests from your Flutter app's origin
+        "http://localhost",
+        "http://localhost:54689",
     ]
 
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=origins,
+        allow_origins=["*"],
         allow_credentials=True,
-        allow_methods=["GET", "POST", "PUT", "DELETE"],
+        allow_methods=["*"],
         allow_headers=["*"],
     )
 
