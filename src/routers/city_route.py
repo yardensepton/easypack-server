@@ -9,7 +9,7 @@ from src.entity.city import City
 
 router = APIRouter(
     prefix="/cities",
-    tags=["CITY NAMES"]
+    tags=["CITIES"]
 )
 
 
@@ -24,9 +24,10 @@ def extract_cities(predictions: List[dict]) -> List[City]:
     for prediction in predictions:
         if "types" in prediction and "locality" in prediction["types"]:
             if "description" in prediction and "place_id" in prediction:
+                text = prediction["description"]
                 city_name = prediction["description"].split(",")[0]
                 place_id = prediction["place_id"]
-                cities.append(City(city_name=city_name, place_id=place_id))
+                cities.append(City(text=text, city_name=city_name, place_id=place_id))
     return cities
 
 
@@ -66,7 +67,6 @@ async def get_city_photo_reference(place_id: str) -> Optional[str]:
         "placeid": place_id,
         "key": google_api_key
     }
-
 
     try:
         async with httpx.AsyncClient() as client:

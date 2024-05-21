@@ -1,6 +1,6 @@
 import typing
 
-from src.entity import Field, PyObjectId, ConfigDict,field_validator
+from src.entity import Field, PyObjectId, ConfigDict, field_validator
 from src.entity.user_schema import UserSchema
 import re
 from src.exceptions.input_error import InputError
@@ -17,7 +17,12 @@ class User(UserSchema):
                 "name": "Jane Doe",
                 "email": "jane@gmail.com",
                 "gender": "female",
-                "residence": "Israel"}
+                "city": {
+                    "place_id": "112",
+                    "city_name": "San Francisco",
+                    "city_url": "http"
+
+                }, }
         },
     )
 
