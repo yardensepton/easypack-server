@@ -14,13 +14,17 @@ class TestUserService(unittest.TestCase):
         self.email = 'test1@example.com'
         self.name = 'Test User'
         self.gender = 'male'
-        self.residence = 'Test Residence'
+        self.city = {
+            "placeid": "112",
+            "city_name": "San Francisco",
+            "city_url": "http"
+        }
 
     def test_create_user_success(self) -> None:
         self.mock_db_handler.return_value.find_one.return_value = None
 
         # Create a sample user object
-        sample_user = User(email=self.email, name=self.name, gender=self.gender, residence=self.residence, id=self.user_id)
+        sample_user = User(email=self.email, name=self.name, gender=self.gender, city=self.city, id=self.user_id)
 
         # Configure the insert_one method of the mock DBHandler instance
         self.mock_db_handler.return_value.insert_one.return_value = {
@@ -28,7 +32,7 @@ class TestUserService(unittest.TestCase):
             'email': self.email,
             'name': self.name,
             'gender': self.gender,
-            'residence': self.residence
+            'city': self.city
         }
 
         # Perform the action being tested
@@ -39,7 +43,7 @@ class TestUserService(unittest.TestCase):
         self.assertEqual(created_user['email'], self.email)
         self.assertEqual(created_user['name'], self.name)
         self.assertEqual(created_user['gender'], self.gender)
-        self.assertEqual(created_user['residence'], self.residence)
+        self.assertEqual(created_user['city'], self.city)
 
         # Verify that insert_one method of the mock DBHandler was called with the sample_user
         self.mock_db_handler.return_value.insert_one.assert_called_once_with(sample_user)
