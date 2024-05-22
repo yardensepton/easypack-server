@@ -60,7 +60,49 @@ class DBHandler(DBHandlerBase):
 
         return None
 
-    def add_object_id(self, key: str, value: str) -> str:
+    def add(self, new_info_name: str, new_info: Dict, value: str) -> Optional[T]:
+        updated: Dict = self.collection.find_one_and_update(
+            {"_id": ObjectId(value)},
+            {"$push": {new_info_name: new_info}},
+            return_document=ReturnDocument.AFTER
+        )
+        print(updated)
+        # Initialize the updated object if found
+        if updated is not None:
+            return self.init(updated)
+
+        return None
+
+    def update_specific_field(self, outer_value: str, inner_value: str, outer_value_name: str, inner_value_name: str,
+                              update_fields: Dict) -> Optional[T]:
+        # logging.debug(f"Updating item {item_id} in document with {key}: {value}")
+        updated_obj: Dict = self.collection.find_one_and_update(
+            {"_id": ObjectId(outer_value), f"{outer_value_name}.{inner_value_name}": inner_value},
+            {"$set": {f"{outer_value_name}.$.{k}": v for k, v in update_fields.items()}},
+            return_document=ReturnDocument.AFTER
+        )
+        # logging.debug(f"Updated object: {updated_obj}")
+        if updated_obj is not None:
+            return self.init(updated_obj)
+        return None
+
+    def remove_specific_field(self, outer_value: str, outer_value_name: str, inner_value: str, inner_value_name: str) -> \
+            Optional[Dict]:
+        # logging.debug(f"Removing item {item_id} from document with {key}: {value}")
+        query = {"_id": ObjectId(outer_value)}
+        update = {"$pull": {outer_value_name: {inner_value_name: inner_value}}}
+        updated_obj: Dict = self.collection.find_one_and_update(
+            query,
+            update,
+            return_document=ReturnDocument.AFTER
+        )
+        # logging.debug(f"Updated object after removal: {updated_obj}")
+        if updated_obj is not None:
+            return self.init(updated_obj)
+        return None
+
+    @classmethod
+    def add_object_id(cls, key: str, value: str) -> str:
         if key == '_id':
             value = ObjectId(value)
         return value

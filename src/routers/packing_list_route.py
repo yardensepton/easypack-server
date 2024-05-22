@@ -7,6 +7,7 @@ from src.controllers.packing_list_controller import PackingListController
 from src.controllers.trip_controller import TripController
 from src.entity.packing_list import PackingList
 from src.entity.packing_list_schema import PackingListSchema
+from src.entity.packing_list_update import PackingListUpdate
 
 router = APIRouter(
     prefix="/packing-lists",
@@ -50,5 +51,5 @@ async def delete_packing_list_by_id(list_id: str):
 
 
 @router.put("/{list_id}", response_model=PackingList)
-def update_packing_list_by_id(new_info: PackingListSchema, list_id: str):
+def update_packing_list_by_id(new_info: List[PackingListUpdate], list_id: str):
     return list_controller.update_packing_list_by_id(new_info, list_id)

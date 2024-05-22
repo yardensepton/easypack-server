@@ -8,7 +8,6 @@ from src.exceptions.input_error import InputError
 
 
 class TripSchema(BaseModel):
-    # destination: Optional[str] = None
     destination: Optional[City] = None
     departure_date: Optional[str] = None
     return_date: Optional[str] = None
@@ -38,7 +37,8 @@ class TripSchema(BaseModel):
             return self
         return self
 
-    def parse_date(self, value):
+    @classmethod
+    def parse_date(cls, value):
         try:
             return datetime.strptime(value, "%Y-%m-%d")
         except ValueError:

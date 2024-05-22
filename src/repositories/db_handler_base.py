@@ -35,6 +35,10 @@ class DBHandlerBase(ABC):
         pass
 
     @abstractmethod
+    def add(self,new_info_name:str, new_info: Dict,value:str) -> Optional[T]:
+        pass
+
+    @abstractmethod
     def exists(self, key: str, value: str) -> bool:
         pass
 

@@ -9,7 +9,6 @@ def validate_non_none_fields(obj: T) -> bool:
         if key != 'id' and not isinstance(value, dict)
     }
 
-
     # Find fields that are None or empty (for strings)
     missing_fields = [
         field_name for field_name, field_value in fields_to_check.items()

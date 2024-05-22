@@ -9,7 +9,6 @@ from src.exceptions.input_error import InputError
 class UserSchema(BaseModel):
     name: Optional[str] = None
     gender: Optional[str] = None
-    # residence: Optional[str] = None
     city: Optional[City] = None
     model_config = ConfigDict(
         populate_by_name=True,
