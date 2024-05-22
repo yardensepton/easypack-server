@@ -19,10 +19,9 @@ class UserSchema(BaseModel):
                 "name": "Jane Doe",
                 "gender": "female",
                 "city": {
-                    "placeid": "112",
+                    "place_id": "112",
+                    "text":"San Francisco, California",
                     "city_name": "San Francisco",
-                    "city_url": "http"
-
                 },
             }
         },

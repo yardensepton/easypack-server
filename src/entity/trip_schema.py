@@ -1,13 +1,15 @@
 from datetime import datetime
 from typing import Optional, Self
 
-from src.entity import BaseModel, ConfigDict,model_validator
+from src.entity import BaseModel, ConfigDict, model_validator
+from src.entity.city import City
 
 from src.exceptions.input_error import InputError
 
 
 class TripSchema(BaseModel):
-    destination: Optional[str] = None
+    # destination: Optional[str] = None
+    destination: Optional[City] = None
     departure_date: Optional[str] = None
     return_date: Optional[str] = None
     model_config = ConfigDict(
@@ -15,7 +17,11 @@ class TripSchema(BaseModel):
         arbitrary_types_allowed=True,
         json_schema_extra={
             "example": {
-                "destination": "France",
+                "destination": {
+                    "text": "tel aviv, Israel",
+                    "place_id": "1234",
+                    "city_name": "tel aviv",
+                },
                 "departure_date": "2025-04-26",
                 "return_date": "2025-04-28",
             }
