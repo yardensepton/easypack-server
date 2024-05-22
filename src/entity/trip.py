@@ -13,7 +13,11 @@ class Trip(TripSchema):
         json_schema_extra={
             "example": {
                 "user_id": "your_user_id_value",
-                "destination": "London",
+                "destination": {
+                    "text": "tel aviv, Israel",
+                    "place_id": "1234",
+                    "city_name": "tel aviv",
+                },
                 "departure_date": "2025-02-26",
                 "return_date": "2025-02-28",
             }

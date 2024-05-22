@@ -19,9 +19,8 @@ class User(UserSchema):
                 "gender": "female",
                 "city": {
                     "place_id": "112",
+                    "text": "San Francisco, California",
                     "city_name": "San Francisco",
-                    "city_url": "http"
-
                 }, }
         },
     )
