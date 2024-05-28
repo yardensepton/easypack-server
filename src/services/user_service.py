@@ -9,7 +9,7 @@ from src.exceptions.not_found_error import NotFoundError
 from src.repositories.users_db import UsersDB
 
 
-class UserService():
+class UserService:
     def __init__(self):
         self.db_handler = UsersDB(db, "USERS")
 
@@ -31,14 +31,14 @@ class UserService():
             return user
         raise NotFoundError(obj_name="user", obj_id=user_id)
 
-    def delete_user_by_id(self, user_id: str)->None:
+    def delete_user_by_id(self, user_id: str) -> None:
         user: User = self.db_handler.find_one("_id", user_id)
         if user is not None:
             self.db_handler.delete_one("_id", user_id)
 
     def update_user_by_id(self, new_info: UserSchema, user_id: str) -> User:
         # adding the input values to a dict if they are not null
-        new_info_dict:Dict = {
+        new_info_dict: Dict = {
             k: v for k, v in new_info.model_dump(by_alias=True).items() if v is not None
         }
 

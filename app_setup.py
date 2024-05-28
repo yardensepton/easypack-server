@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from src.routers import user_route, item_route, trip_route, packing_list_route, city_route, weather_route
+from src.routers import user_route, item_route, trip_route, packing_list_route, city_route, weather_route, \
+    exchange_rate_route
 
 
 def create_app() -> FastAPI:
@@ -23,6 +24,9 @@ def create_app() -> FastAPI:
         city_route.router
     )
 
+    app.include_router(
+        exchange_rate_route.router
+    )
     app.include_router(
         weather_route.router
     )

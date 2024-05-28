@@ -1,10 +1,12 @@
 import os
+from typing import List
 
 import httpx
 from dotenv import load_dotenv
 from fastapi import APIRouter, Query, HTTPException
 
-from src.entity.weather import Weather
+from src.controllers.weather_controller import WeatherController
+from src.entity.weather import WeatherDay
 
 router = APIRouter(
     prefix="/weather",
@@ -12,6 +14,8 @@ router = APIRouter(
 )
 
 BASE_URL = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/"
+
+weather_controller = WeatherController()
 
 
 def construct_url(location: str, departure: str, arrival: str) -> str:
@@ -25,7 +29,7 @@ def construct_url(location: str, departure: str, arrival: str) -> str:
 
 @router.get("")
 async def get_weather(location: str, departure: str = Query(None, description="Departure date (YYYY-MM-DD)"),
-                      arrival: str = Query(None, description="Arrival date (YYYY-MM-DD)")) -> dict:
+                      arrival: str = Query(None, description="Arrival date (YYYY-MM-DD)")) -> List[WeatherDay]:
     # Construct the URL using the location and optional dates
     url = construct_url(location, departure, arrival)
     load_dotenv()
@@ -38,6 +42,7 @@ async def get_weather(location: str, departure: str = Query(None, description="D
         "contentType": "json",
         "include": "days"
     }
+    weather_controller.get_average_weather()
 
     # Use an asynchronous HTTP client to make the request
     async with httpx.AsyncClient() as client:
@@ -51,4 +56,4 @@ async def get_weather(location: str, departure: str = Query(None, description="D
         weather_data = response.json()
 
         # Return the weather data
-        return weather_data
+        return weather_controller.create_weather_objects(weather_data)

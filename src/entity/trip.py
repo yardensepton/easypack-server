@@ -17,6 +17,7 @@ class Trip(TripSchema):
                     "text": "tel aviv, Israel",
                     "place_id": "1234",
                     "city_name": "tel aviv",
+                    "country_name":"israel"
                 },
                 "departure_date": "2025-02-26",
                 "return_date": "2025-02-28",

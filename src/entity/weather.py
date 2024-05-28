@@ -1,16 +1,13 @@
-from src.entity import ConfigDict, BaseModel
+from pydantic import BaseModel
+from typing import List
 
 
-class Weather(BaseModel):
-    email: str
-    model_config = ConfigDict(
-        populate_by_name=True,
-        arbitrary_types_allowed=True,
-        json_schema_extra={
-            "example": {
-                "name": "Jane Doe",
-                "email": "jane@gmail.com",
-                "gender": "female",
-                "residence": "Israel"}
-        },
-    )
+class WeatherDay(BaseModel):
+    datetime: str
+    temp_max: float
+    temp_min: float
+    feels_like: float
+    precip_prob: float
+    wind_speed: float
+    conditions: str
+    icon: str

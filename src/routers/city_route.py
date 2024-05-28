@@ -1,16 +1,21 @@
-from typing import List, Optional
-
+from typing import  Optional
 import httpx
 from dotenv import load_dotenv
 from fastapi import APIRouter, HTTPException
 import os
 
+from fastapi.params import Depends
+from fastapi_pagination import Params, Page, paginate
+
+from src.controllers.city_controller import CityController
 from src.entity.city import City
 
 router = APIRouter(
     prefix="/cities",
     tags=["CITIES"]
 )
+
+city_controller = CityController()
 
 
 def load_env() -> str:
@@ -19,20 +24,8 @@ def load_env() -> str:
     return google_api_key
 
 
-def extract_cities(predictions: List[dict]) -> List[City]:
-    cities = []
-    for prediction in predictions:
-        if "types" in prediction and "locality" in prediction["types"]:
-            if "description" in prediction and "place_id" in prediction:
-                text = prediction["description"]
-                city_name = prediction["description"].split(",")[0]
-                place_id = prediction["place_id"]
-                cities.append(City(text=text, city_name=city_name, place_id=place_id))
-    return cities
-
-
 @router.get("/city-autocomplete/{prefix}")
-async def city_autocomplete(prefix: str) -> List[City]:
+async def city_autocomplete(prefix: str, pagination_params: Params = Depends()) -> Page[City]:
     url = f"https://maps.googleapis.com/maps/api/place/autocomplete/json"
 
     google_api_key = load_env()
@@ -49,7 +42,7 @@ async def city_autocomplete(prefix: str) -> List[City]:
             if response.status_code == 200:
                 data = response.json()
                 if "predictions" in data:
-                    return extract_cities(data["predictions"])
+                    return paginate(city_controller.extract_cities(data["predictions"]), pagination_params)
 
             else:
                 raise HTTPException(status_code=response.status_code, detail="Failed to fetch city predictions")

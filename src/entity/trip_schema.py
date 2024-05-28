@@ -19,7 +19,7 @@ class TripSchema(BaseModel):
                 "destination": {
                     "text": "tel aviv, Israel",
                     "place_id": "1234",
-                    "city_name": "tel aviv",
+                    "city_name": "tel aviv"
                 },
                 "departure_date": "2025-04-26",
                 "return_date": "2025-04-28",

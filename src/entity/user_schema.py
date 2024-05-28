@@ -21,6 +21,7 @@ class UserSchema(BaseModel):
                     "place_id": "112",
                     "text":"San Francisco, California",
                     "city_name": "San Francisco",
+                    "country_name": "somewhere"
                 },
             }
         },
