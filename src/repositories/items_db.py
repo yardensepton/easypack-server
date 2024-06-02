@@ -1,4 +1,4 @@
-from src.entity.item import Item
+from src.models.item import Item
 from src.repositories.db_handler import DBHandler
 
 

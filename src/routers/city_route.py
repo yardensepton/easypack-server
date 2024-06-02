@@ -1,14 +1,12 @@
-from typing import  Optional
+from typing import Optional
 import httpx
-from dotenv import load_dotenv
 from fastapi import APIRouter, HTTPException
-import os
-
 from fastapi.params import Depends
 from fastapi_pagination import Params, Page, paginate
 
+from config import GOOGLE_API_KEY
 from src.controllers.city_controller import CityController
-from src.entity.city import City
+from src.models.city import City
 
 router = APIRouter(
     prefix="/cities",
@@ -18,22 +16,14 @@ router = APIRouter(
 city_controller = CityController()
 
 
-def load_env() -> str:
-    load_dotenv()
-    google_api_key = os.getenv("GOOGLE_API_KEY")
-    return google_api_key
-
-
 @router.get("/city-autocomplete/{prefix}")
 async def city_autocomplete(prefix: str, pagination_params: Params = Depends()) -> Page[City]:
     url = f"https://maps.googleapis.com/maps/api/place/autocomplete/json"
 
-    google_api_key = load_env()
-
     params = {
         "input": prefix,
         "types": "(cities)",
-        "key": google_api_key
+        "key": GOOGLE_API_KEY
     }
 
     try:
@@ -54,7 +44,7 @@ async def city_autocomplete(prefix: str, pagination_params: Params = Depends()) 
 async def get_city_photo_reference(place_id: str) -> Optional[str]:
     url = f"https://maps.googleapis.com/maps/api/place/details/json"
 
-    google_api_key = load_env()
+    google_api_key = load_env("GOOGLE_API_KEY")
 
     params = {
         "placeid": place_id,
@@ -92,11 +82,10 @@ async def city_picture(place_id: str) -> str:
         raise HTTPException(status_code=404, detail="No photo reference found")
 
     url = f"https://maps.googleapis.com/maps/api/place/photo"
-    google_api_key = load_env()
     params = {
         "maxwidth": 400,
         "photo_reference": photo_reference,
-        "key": google_api_key
+        "key": GOOGLE_API_KEY
     }
 
     try:

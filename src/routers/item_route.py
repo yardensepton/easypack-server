@@ -3,8 +3,8 @@ from typing import List
 from fastapi import APIRouter, Query
 
 from src.controllers.item_controller import ItemController
-from src.entity.item import Item
-from src.entity.item_and_calculation import ItemAndCalculation
+from src.models.item import Item
+from src.models.item_and_calculation import ItemAndCalculation
 
 router = APIRouter(
     prefix="/items",

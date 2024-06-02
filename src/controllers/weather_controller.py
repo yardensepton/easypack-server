@@ -1,8 +1,8 @@
 from datetime import datetime
 from typing import List
 import pandas as pd
-from src.entity.city import City
-from src.entity.weather import WeatherDay
+from src.models.city import City
+from src.models.weather import WeatherDay
 from meteostat import Monthly, Point
 from geopy.geocoders import Nominatim
 

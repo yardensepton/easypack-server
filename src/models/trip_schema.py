@@ -1,8 +1,8 @@
 from datetime import datetime
 from typing import Optional, Self
 
-from src.entity import BaseModel, ConfigDict, model_validator
-from src.entity.city import City
+from src.models import BaseModel, ConfigDict, model_validator
+from src.models.city import City
 
 from src.exceptions.input_error import InputError
 

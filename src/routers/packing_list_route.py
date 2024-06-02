@@ -1,13 +1,16 @@
 from typing import List, Optional, Union
 
-from fastapi import APIRouter, Query, HTTPException
+from fastapi import APIRouter, Query, HTTPException, Depends
 from starlette import status
 
 from src.controllers.packing_list_controller import PackingListController
 from src.controllers.trip_controller import TripController
-from src.entity.packing_list import PackingList
-from src.entity.packing_list_schema import PackingListSchema
-from src.entity.packing_list_update import PackingListUpdate
+from src.models.packing_list_entity import PackingListEntity
+from src.models.packing_list_boundary import PackingListBoundary
+from src.models.packing_list_update import PackingListUpdate
+from src.models.user_entity import UserEntity
+from src.utils.authantication.current_identity_utils import get_current_access_identity
+from src.utils.decorators.relationship_decorator import user_trip_access_or_abort
 
 router = APIRouter(
     prefix="/packing-lists",
@@ -18,15 +21,17 @@ list_controller = PackingListController()
 trip_controller = TripController()
 
 
-@router.post("", response_model=PackingList)
-async def create_packing_list(packing_list: PackingList):
-    trip_controller.get_trip_by_id(packing_list.trip_id)
-    return list_controller.create_packing_list(packing_list)
+@router.post("/{trip_id}", response_model=PackingListEntity)
+@user_trip_access_or_abort
+async def create_packing_list(trip_id: str, packing_list: PackingListBoundary,
+                              identity: UserEntity = Depends(get_current_access_identity)):
+    return list_controller.create_packing_list(packing_list=packing_list, trip_id=trip_id)
 
 
-@router.get("", response_model=Union[PackingList, Optional[List[PackingList]]])
+@router.get("", response_model=Union[PackingListEntity, Optional[List[PackingListEntity]]])
 async def get(trip_id: Optional[str] = Query(None, description="Trip ID"),
-              list_id: Optional[str] = Query(None, description="List ID")):
+              list_id: Optional[str] = Query(None, description="List ID"),
+              identity: UserEntity = Depends(get_current_access_identity)):
     if list_id is not None:
         return list_controller.get_packing_list_by_id(list_id)
 
@@ -44,12 +49,15 @@ async def get(trip_id: Optional[str] = Query(None, description="Trip ID"),
         return packing_lists
 
 
-@router.delete("/{list_id}", response_model=None)
-async def delete_packing_list_by_id(list_id: str):
-    list_controller.get_packing_list_by_id(list_id)
+@router.delete("/{trip_id}/{list_id}", response_model=None)
+@user_trip_access_or_abort
+async def delete_packing_list_by_id(trip_id: str, list_id: str,
+                                    identity: UserEntity = Depends(get_current_access_identity)):
     list_controller.delete_packing_list_by_id(list_id)
 
 
-@router.put("/{list_id}", response_model=PackingList)
-def update_packing_list_by_id(new_info: List[PackingListUpdate], list_id: str):
+@router.put("/{trip_id}/{list_id}", response_model=PackingListEntity)
+@user_trip_access_or_abort
+def update_packing_list_by_id(new_info: List[PackingListUpdate], list_id: str,
+                              identity: UserEntity = Depends(get_current_access_identity)):
     return list_controller.update_packing_list_by_id(new_info, list_id)

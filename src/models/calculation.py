@@ -1,6 +1,6 @@
 import typing
 
-from src.entity import BaseModel, Field, PyObjectId
+from src.models import BaseModel, Field, PyObjectId
 
 
 class Calculation(BaseModel):

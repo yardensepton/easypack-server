@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch
-from src.entity.user import User
+from src.models.user_entity import UserEntity
 from src.services.user_service import UserService
 
 
@@ -24,7 +24,7 @@ class TestUserService(unittest.TestCase):
         self.mock_db_handler.return_value.find_one.return_value = None
 
         # Create a sample user object
-        sample_user = User(email=self.email, name=self.name, gender=self.gender, city=self.city, id=self.user_id)
+        sample_user = UserEntity(email=self.email, name=self.name, gender=self.gender, city=self.city, id=self.user_id)
 
         # Configure the insert_one method of the mock DBHandler instance
         self.mock_db_handler.return_value.insert_one.return_value = {

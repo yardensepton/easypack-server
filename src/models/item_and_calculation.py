@@ -1,4 +1,4 @@
-from src.entity.calculation import Calculation
+from src.models.calculation import Calculation
 
 
 class ItemAndCalculation(Calculation):

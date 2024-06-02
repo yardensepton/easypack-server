@@ -1,9 +1,9 @@
-from src.entity import BaseModel, ConfigDict, List
+from src.models import BaseModel, ConfigDict, List
 
-from src.entity.item_and_calculation import ItemAndCalculation
+from src.models.item_and_calculation import ItemAndCalculation
 
 
-class PackingListSchema(BaseModel):
+class PackingListBoundary(BaseModel):
     items: List[ItemAndCalculation]
     model_config = ConfigDict(
         populate_by_name=True,

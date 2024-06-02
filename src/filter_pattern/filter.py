@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from src.entity.item import Item
+from src.models.item import Item
 
 
 class Filter(ABC):

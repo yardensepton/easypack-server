@@ -1,6 +1,6 @@
 from typing import List
 
-from src.entity.city import City
+from src.models.city import City
 import pycountry
 
 

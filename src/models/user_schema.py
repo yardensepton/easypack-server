@@ -1,7 +1,7 @@
 from typing import Optional
 
-from src.entity import BaseModel, ConfigDict, field_validator
-from src.entity.city import City
+from src.models import BaseModel, ConfigDict, field_validator
+from src.models.city import City
 from src.enums.gender_options import GenderOptions
 from src.exceptions.input_error import InputError
 

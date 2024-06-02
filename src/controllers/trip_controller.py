@@ -1,8 +1,10 @@
 from datetime import datetime
 from typing import List
 from src.controllers.packing_list_controller import PackingListController
-from src.entity.trip import Trip
-from src.entity.trip_schema import TripSchema
+from src.models.trip_boundary import TripBoundary
+from src.models.trip_entity import TripEntity
+from src.models.trip_schema import TripSchema
+from src.models.user_entity import UserEntity
 from src.exceptions.input_error import InputError
 from src.services.trip_service import TripService
 
@@ -13,18 +15,20 @@ class TripController:
         self.trip_service = TripService()
         self.packing_list_controller = PackingListController()
 
-    def create_trip(self, trip: Trip) -> Trip:
-        user_id = trip.user_id
-        departure_date = trip.departure_date
-        return_date = trip.return_date
+    def create_trip(self, trip: TripBoundary) -> TripEntity:
+        trip_entity: TripEntity = TripEntity(departure_date=trip.departure_date, return_date=trip.return_date,
+                                             user_id=trip.user_id, destination=trip.destination)
+        user_id = trip_entity.user_id
+        departure_date = trip_entity.departure_date
+        return_date = trip_entity.return_date
         if self.availability_within_date_range(
-                user_id, departure_date, return_date, trip.id):
-            return self.trip_service.create_trip(trip=trip)
+                user_id, departure_date, return_date, trip_entity.id):
+            return self.trip_service.create_trip(trip=trip_entity)
 
-    def get_trip_by_id(self, trip_id: str) -> Trip:
+    def get_trip_by_id(self, trip_id: str) -> TripEntity:
         return self.trip_service.get_trip_by_id(trip_id=trip_id)
 
-    def get_trips_by_user_id(self, user_id: str) -> List[Trip]:
+    def get_trips_by_user_id(self, user_id: str) -> List[TripEntity]:
         return self.trip_service.get_trips_by_user_id(user_id=user_id)
 
     def delete_trip_by_id(self, trip_id: str):
@@ -40,7 +44,7 @@ class TripController:
                     self.packing_list_controller.delete_packing_list_by_trip_id(trip_id)
                     self.delete_trip_by_id(trip_id)
 
-    def update_trip_by_id(self, new_info: TripSchema, trip_id: str) -> Trip:
+    def update_trip_by_id(self, new_info: TripSchema, trip_id: str) -> TripEntity:
         trip_dict = self.get_trip_by_id(trip_id)
         if trip_dict is not None:
             user_id = trip_dict.user_id
@@ -65,12 +69,12 @@ class TripController:
                 return self.trip_service.update_trip_by_id(trip_id=trip_id, new_info=new_info)
 
     def check_departure_and_return_inputs(self, user_id: str, departure_date: str, return_date: str, trip_id: str,
-                                          new_info: TripSchema) -> Trip:
+                                          new_info: TripSchema) -> TripEntity:
         if self.are_dates_valid(departure_date, return_date) and self.availability_within_date_range(
                 user_id, departure_date, return_date, trip_id):
             return self.trip_service.update_trip_by_id(trip_id=trip_id, new_info=new_info)
 
-    def get_all_trips(self) -> List[Trip]:
+    def get_all_trips(self) -> List[TripEntity]:
         return self.trip_service.get_all_trips()
 
     def availability_within_date_range(self, user_id: str, departure_date: str, return_date: str, trip_id: str) -> bool:
@@ -86,8 +90,7 @@ class TripController:
 
         # Iterate through the list of trips
         for trip in trips:
-            # trip = Trip(**trip)
-            if str(trip.id) != trip_id:
+            if trip_id is None or str(trip.id) != trip_id:
                 current_trip_start = self.parse_date(trip.departure_date)
                 current_trip_end = self.parse_date(trip.return_date)
 

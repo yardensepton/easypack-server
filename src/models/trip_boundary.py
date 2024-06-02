@@ -1,11 +1,11 @@
 import typing
 
-from src.entity import Field, PyObjectId, ConfigDict
-from src.entity.trip_schema import TripSchema
+from src.models import Field, PyObjectId, ConfigDict
+from src.models.trip_schema import TripSchema
 
 
-class Trip(TripSchema):
-    id: typing.Optional[PyObjectId] = Field(alias="_id", default=None)
+class TripBoundary(TripSchema):
+    # id: typing.Optional[PyObjectId] = Field(alias="_id", default=None)
     user_id: str
     model_config = ConfigDict(
         populate_by_name=True,

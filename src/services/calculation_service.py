@@ -1,9 +1,9 @@
 from typing import List
 
 from db import db
-from src.entity.calculation import Calculation
-from src.entity.item import Item
-from src.entity.item_and_calculation import ItemAndCalculation
+from src.models.calculation import Calculation
+from src.models.item import Item
+from src.models.item_and_calculation import ItemAndCalculation
 from src.exceptions.not_found_error import NotFoundError
 from src.repositories.calculations_db import CalculationsDB
 

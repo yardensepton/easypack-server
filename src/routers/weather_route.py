@@ -1,12 +1,12 @@
-import os
 from typing import List
 
 import httpx
-from dotenv import load_dotenv
+
 from fastapi import APIRouter, Query, HTTPException
 
+from config import WEATHER_API_KEY
 from src.controllers.weather_controller import WeatherController
-from src.entity.weather import WeatherDay
+from src.models.weather import WeatherDay
 
 router = APIRouter(
     prefix="/weather",
@@ -32,13 +32,11 @@ async def get_weather(location: str, departure: str = Query(None, description="D
                       arrival: str = Query(None, description="Arrival date (YYYY-MM-DD)")) -> List[WeatherDay]:
     # Construct the URL using the location and optional dates
     url = construct_url(location, departure, arrival)
-    load_dotenv()
-    weather_api_key = os.getenv("WEATHER_API_KEY")
 
     # Define the query parameters
     params = {
         "unitGroup": "metric",
-        "key": weather_api_key,
+        "key": WEATHER_API_KEY,
         "contentType": "json",
         "include": "days"
     }

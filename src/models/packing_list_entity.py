@@ -1,13 +1,12 @@
 import typing
 
-from src.entity import BaseModel, Field, PyObjectId, ConfigDict
-from src.entity.item_and_calculation import ItemAndCalculation
+from src.models import Field, PyObjectId, ConfigDict
+from src.models.packing_list_boundary import PackingListBoundary
 
 
-class PackingList(BaseModel):
+class PackingListEntity(PackingListBoundary):
     id: typing.Optional[PyObjectId] = Field(alias="_id", default=None)
     trip_id: str
-    items: typing.List[ItemAndCalculation]
     model_config = ConfigDict(
         populate_by_name=True,
         arbitrary_types_allowed=True,

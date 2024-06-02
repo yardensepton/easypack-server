@@ -1,7 +1,8 @@
 from typing import List
 
-from src.entity.packing_list import PackingList
-from src.entity.packing_list_update import PackingListUpdate
+from src.models.packing_list_boundary import PackingListBoundary
+from src.models.packing_list_entity import PackingListEntity
+from src.models.packing_list_update import PackingListUpdate
 from src.enums.operation import Operation
 from src.services.packing_list_service import PackingListService
 
@@ -11,13 +12,13 @@ class PackingListController:
     def __init__(self):
         self.packing_list_service = PackingListService()
 
-    def create_packing_list(self, packing_list: PackingList) -> PackingList:
-        return self.packing_list_service.create_packing_list(packing_list=packing_list)
+    def create_packing_list(self, trip_id: str, packing_list: PackingListBoundary) -> PackingListEntity:
+        return self.packing_list_service.create_packing_list(packing_list=packing_list,trip_id=trip_id)
 
-    def get_packing_list_by_id(self, list_id: str) -> PackingList:
+    def get_packing_list_by_id(self, list_id: str) -> PackingListEntity:
         return self.packing_list_service.get_packing_list_by_id(list_id=list_id)
 
-    def get_packing_list_by_trip_id(self, trip_id: str) -> PackingList:
+    def get_packing_list_by_trip_id(self, trip_id: str) -> PackingListEntity:
         return self.packing_list_service.get_packing_list_by_trip_id(trip_id=trip_id)
 
     def delete_packing_list_by_id(self, list_id: str):
@@ -26,7 +27,7 @@ class PackingListController:
     def delete_packing_list_by_trip_id(self, trip_id: str):
         return self.packing_list_service.delete_packing_list_by_trip_id(trip_id=trip_id)
 
-    def update_packing_list_by_id(self, new_info: List[PackingListUpdate], list_id) -> PackingList:
+    def update_packing_list_by_id(self, new_info: List[PackingListUpdate], list_id) -> PackingListEntity:
         for update in new_info:
             if update.operation == Operation.update:
                 self.packing_list_service.update_item(list_id, update.details)
@@ -36,5 +37,5 @@ class PackingListController:
                 self.packing_list_service.add_item(list_id=list_id, details=update.details)
         return self.packing_list_service.get_packing_list_by_id(list_id)
 
-    def get_all_packing_lists(self) -> List[PackingList]:
+    def get_all_packing_lists(self) -> List[PackingListEntity]:
         return self.packing_list_service.get_all_packing_lists()

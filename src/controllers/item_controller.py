@@ -1,6 +1,6 @@
 from typing import List
 
-from src.entity.item import Item
+from src.models.item import Item
 from src.exceptions.input_error import InputError
 from src.filter_pattern.category_filter import CategoryFilter
 from src.filter_pattern.filter import Filter

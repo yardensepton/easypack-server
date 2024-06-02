@@ -1,10 +1,19 @@
-from fastapi import APIRouter
-
+from fastapi import APIRouter, HTTPException, Depends, Cookie
+from fastapi.security import OAuth2PasswordRequestForm
+from starlette import status
+from starlette.responses import JSONResponse
 
 from src.controllers import UserController
 from src.controllers.trip_controller import TripController
-from src.entity.user_schema import UserSchema
-from src.entity.user import User
+from src.models.auth_info import AuthInfo
+from src.models.user_boundary import UserBoundary
+from src.models.user_schema import UserSchema
+from src.models.user_entity import UserEntity
+
+from src.utils.authantication.current_identity_utils import get_current_access_identity, \
+    get_current_refresh_identity
+from src.utils.authantication.jwt_handler import *
+from src.utils.decorators.user_decorator import user_permission_check
 
 router = APIRouter(
     prefix="/users",
@@ -15,23 +24,49 @@ user_controller = UserController()
 trip_controller = TripController()
 
 
-@router.post("", response_model=User)
-async def create_user(user: User):
+@router.post("/sign-up", response_model=UserEntity)
+async def create_user(user: UserBoundary):
     return user_controller.create_user(user)
 
 
-@router.get("/{user_id}", response_model=User)
-async def get_user_by_id(user_id: str):
+@router.post("/login")
+async def login_user(user_data: OAuth2PasswordRequestForm = Depends()):
+    user_model: AuthInfo = AuthInfo(username=user_data.username, password=user_data.password)
+    user_from_db: UserEntity = user_controller.authenticate_user_or_abort(user_model)
+    access_token = create_access_token(user_from_db.id)
+    refresh_token = create_refresh_token(user_from_db.id)
+    response = JSONResponse(status_code=status.HTTP_200_OK, content={"access_token": access_token,
+                                                                     "token_type": "bearer"})
+    response.set_cookie(key="refresh_token", value=refresh_token)
+    return response
+
+
+@router.post("/refresh")
+async def refresh_new_token(refresh_token: str = Cookie(None)):
+    if not refresh_token:
+        raise HTTPException(status_code=401, detail="No refresh token")
+    user = await get_current_refresh_identity(refresh_token)
+    access_token = create_access_token(user.id)
+    return JSONResponse(status_code=status.HTTP_200_OK, content={"access_token": access_token,
+                                                                 "token_type": "bearer"})
+
+
+@router.get("/{user_id}", response_model=UserEntity)
+@user_permission_check
+async def get_user_by_id(user_id: str, identity: UserEntity = Depends(get_current_access_identity)):
     return user_controller.get_user_by_id(user_id)
 
 
 @router.delete("/{user_id}", response_model=None)
-async def delete_user_by_id(user_id: str):
+@user_permission_check
+async def delete_user_by_id(user_id: str, identity: UserEntity = Depends(get_current_access_identity)):
     user_controller.get_user_by_id(user_id)
     trip_controller.delete_trips_by_user_id(user_id)
     user_controller.delete_user_by_id(user_id)
 
 
-@router.put("/{user_id}", response_model=User)
-async def update_user_by_id(new_info: UserSchema, user_id: str):
+@router.put("/{user_id}", response_model=UserEntity)
+@user_permission_check
+async def update_user_by_id(new_info: UserSchema, user_id: str,
+                            identity: UserEntity = Depends(get_current_access_identity)):
     return user_controller.update_user_by_id(new_info, user_id)
