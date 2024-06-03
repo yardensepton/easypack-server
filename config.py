@@ -8,7 +8,6 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60
 # REFRESH_TOKEN_EXPIRE_MINUTES = 60 * 4
 REFRESH_TOKEN_EXPIRE_DAYS = 7
 
-
 load_dotenv()
 
 JWT_ACCESS_SECRET = os.getenv('JWT_ACCESS_SECRET')
@@ -17,5 +16,6 @@ JWT_ALGORITHM = os.getenv('JWT_ALGORITHM')
 GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
 WEATHER_API_KEY = os.getenv('WEATHER_API_KEY')
 EXCHANGE_RATE_API = os.getenv('EXCHANGE_RATE_API')
-
 reusable_oauth = OAuth2PasswordBearer(tokenUrl="http://localhost:8000/users/login", auto_error=False)
+
+templates_folder = os.path.join('templates')

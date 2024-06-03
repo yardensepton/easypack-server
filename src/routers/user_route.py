@@ -1,10 +1,17 @@
-from fastapi import APIRouter, HTTPException, Depends, Cookie
+import pyshorteners
+
+from fastapi import APIRouter, HTTPException, Depends, Cookie, Form
 from fastapi.security import OAuth2PasswordRequestForm
+from pydantic import EmailStr
+
 from starlette import status
+from starlette.requests import Request
 from starlette.responses import JSONResponse
+from starlette.templating import Jinja2Templates
 
 from src.controllers import UserController
 from src.controllers.trip_controller import TripController
+from src.email_notifications.notify import send_reset_password_mail
 from src.models.auth_info import AuthInfo
 from src.models.user_boundary import UserBoundary
 from src.models.user_schema import UserSchema
@@ -15,6 +22,8 @@ from src.utils.authantication.current_identity_utils import get_current_access_i
 from src.utils.authantication.jwt_handler import *
 from src.utils.decorators.user_decorator import user_permission_check
 
+templates = Jinja2Templates("templates")
+
 router = APIRouter(
     prefix="/users",
     tags=["USERS"]
@@ -22,6 +31,7 @@ router = APIRouter(
 
 user_controller = UserController()
 trip_controller = TripController()
+shortener = pyshorteners.Shortener()
 
 
 @router.post("/sign-up", response_model=UserEntity)
@@ -39,6 +49,63 @@ async def login_user(user_data: OAuth2PasswordRequestForm = Depends()):
                                                                      "token_type": "bearer"})
     response.set_cookie(key="refresh_token", value=refresh_token)
     return response
+
+
+@router.post("/forgot-password")
+async def user_forgot_password(request: Request, user_email: EmailStr):
+    user: UserEntity = user_controller.get_user_by_email(user_email)
+    if user:
+        access_token = create_access_token(user_id=user.id)
+        url = f"{request.base_url}users/reset-password-template?access_token={access_token}"
+        short_url = shortener.tinyurl.short(url)
+        await send_reset_password_mail(recipient_email=user_email, user=user, url=short_url,
+                                       expire_in_minutes=60)
+    return {
+        "result": f"An email has been sent to {user_email} with a link for password reset."
+    }
+
+
+@router.get("/reset-password-template")
+async def user_reset_password_template(request: Request):
+    try:
+        access_token = request.query_params.get('access_token')
+
+        response = templates.TemplateResponse(
+            "reset_password.html",
+            {
+                "request": request
+            }
+        )
+        response.set_cookie(key="reset_token", value=access_token, httponly=True, secure=True)
+        return response
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"An unexpected error occurred. Report this message to support: {e}")
+
+
+@router.post("/reset-password")
+async def user_reset_password(request: Request, new_password: str = Form(...)
+                              , reset_token: str = Cookie(None)):
+    if not reset_token:
+        raise HTTPException(status_code=401, detail="No reset token")
+    try:
+        identity = await get_current_access_identity(token=reset_token)
+        result = user_controller.user_reset_password(new_password, identity)
+        response = templates.TemplateResponse(
+            "reset_password_result.html",
+            {
+                "request": request,
+                "success": result
+            }
+        )
+        response.delete_cookie("reset_token")
+        return response
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400, detail=f"{e}")
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"An unexpected error occurred. Report this message to support: {e}")
 
 
 @router.post("/refresh")

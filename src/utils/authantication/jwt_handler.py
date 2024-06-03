@@ -23,3 +23,6 @@ def token_generator(user_id: str, expire_time: int, jwt_secret: Union[str, dict]
         expires_delta: datetime = datetime.now() + (expires_delta or timedelta(days=expire_time))
     token_payload: TokenPayload = TokenPayload(expires=expires_delta.isoformat(), user_id=user_id)
     return jwt.encode(token_payload.dict(), jwt_secret, JWT_ALGORITHM)
+
+
+

@@ -1,5 +1,4 @@
-import re
-from pydantic import ConfigDict, field_validator
+from pydantic import ConfigDict, field_validator, EmailStr
 
 from src.models.user_schema import UserSchema
 from src.enums.role_options import RoleOptions
@@ -7,7 +6,7 @@ from src.exceptions.input_error import InputError
 
 
 class UserBoundary(UserSchema):
-    email: str
+    email: EmailStr
     password: str
     role: str
     model_config = ConfigDict(
@@ -28,14 +27,6 @@ class UserBoundary(UserSchema):
                 }, }
         },
     )
-
-    @field_validator('email')
-    @classmethod
-    def is_valid_email_format(cls, email: str) -> str:
-        email_regex = r"(^[-!#$%&'*+/=?^_`{|}~a-zA-Z0-9]+(\.[-\w]*)*@[-a-zA-Z0-9]+(\.[-\w]*)+\.?[a-zA-Z]{2,}$)"
-        if bool(re.match(email_regex, email)) is False:
-            raise InputError("Invalid email format")
-        return email
 
     @field_validator('role')
     @classmethod

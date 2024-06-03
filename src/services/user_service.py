@@ -1,6 +1,8 @@
 import logging
 from typing import Dict
 
+from pydantic import EmailStr
+
 from db import db
 from src.models.auth_info import AuthInfo
 from src.models.user_boundary import UserBoundary
@@ -39,7 +41,7 @@ class UserService:
             return user
         raise NotFoundError(obj_name="user", obj_id=user_id)
 
-    def get_user_email(self, email: str) -> UserEntity:
+    def get_user_by_email(self, email: EmailStr) -> UserEntity:
         user: UserEntity = self.db_handler.find_one("email", email)
         if user is not None:
             return user
@@ -61,10 +63,15 @@ class UserService:
             return updated
         raise NotFoundError(obj_name="user", obj_id=user_id)
 
-    def authenticate_user_or_abort(self, user_model: AuthInfo):
-        user = self.get_user_email(user_model.username)
+    def authenticate_user_or_abort(self, user_model: AuthInfo) -> UserEntity:
+        user = self.get_user_by_email(user_model.username)
         if user is None:
             raise NotFoundError(obj_name="user", obj_id=user_model.username)
         if not verify_password_hash(given_password=user_model.password, password_hash=user.password):
             raise AuthorizationError(obj_name="user", obj_id=user_model.username)
         return user
+
+    def user_reset_password(self, new_password: str, user: UserEntity) -> UserEntity:
+        if user is not None:
+            user.password = get_password_hash(new_password)
+            return self.db_handler.find_one_and_update(user.dict(), user.id)

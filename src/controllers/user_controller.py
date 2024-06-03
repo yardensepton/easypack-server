@@ -1,3 +1,5 @@
+from pydantic import EmailStr
+
 from src.common.common_validation import validate_non_none_fields
 from src.controllers.city_controller import CityController
 from src.models.auth_info import AuthInfo
@@ -21,11 +23,18 @@ class UserController:
     def get_user_by_id(self, user_id: str) -> UserEntity:
         return self.user_service.get_user_by_id(user_id)
 
+    def get_user_by_email(self, email: EmailStr) -> UserEntity:
+        return self.user_service.get_user_by_email(email)
+
     def delete_user_by_id(self, user_id: str):
         self.user_service.delete_user_by_id(user_id)
 
     def update_user_by_id(self, new_info: UserSchema, user_id: str) -> UserEntity:
         return self.user_service.update_user_by_id(new_info, user_id)
 
-    def authenticate_user_or_abort(self, user_model: AuthInfo):
+    def authenticate_user_or_abort(self, user_model: AuthInfo) -> UserEntity:
         return self.user_service.authenticate_user_or_abort(user_model)
+
+    def user_reset_password(self, new_password:str, user:UserEntity) -> UserEntity:
+        return self.user_service.user_reset_password(new_password,user)
+
