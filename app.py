@@ -1,6 +1,7 @@
 from app_setup import create_app
 from src.exceptions.exception_handlers import *
 from src.exceptions.input_error import InputError
+from fastapi.exceptions import RequestValidationError
 from src.exceptions.not_found_error import NotFoundError
 from fastapi import Request
 
@@ -40,3 +41,8 @@ async def handle_invalid_id_error(request: Request, exc: InvalidId):
 @app.exception_handler(ValueError)
 async def handle_invalid_id_error(request: Request, exc: ValueError):
     return value_error_exception_handler(request, exc)
+
+
+@app.exception_handler(RequestValidationError)
+async def handle_unprocessable_entity_error(request: Request, exc: RequestValidationError):
+    return unprocessable_entity_exception_handler(request, exc)

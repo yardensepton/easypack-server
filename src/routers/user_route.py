@@ -55,8 +55,9 @@ async def login_user(user_data: OAuth2PasswordRequestForm = Depends()):
 async def user_forgot_password(request: Request, user_email: EmailStr):
     user: UserEntity = user_controller.get_user_by_email(user_email)
     if user:
-        access_token = create_access_token(user_id=user.id)
-        url = f"{request.base_url}users/reset-password-template?access_token={access_token}"
+        # access_token = create_access_token(user_id=user.id)
+        # TODO: add email to parmeter
+        url = f"{request.base_url}users/reset-password-template?user_id={user.id}"
         short_url = shortener.tinyurl.short(url)
         await send_reset_password_mail(recipient_email=user_email, user=user, url=short_url,
                                        expire_in_minutes=60)
@@ -68,16 +69,15 @@ async def user_forgot_password(request: Request, user_email: EmailStr):
 @router.get("/reset-password-template")
 async def user_reset_password_template(request: Request):
     try:
-        access_token = request.query_params.get('access_token')
+        user_id = request.query_params.get('user_id')
 
         response = templates.TemplateResponse(
             "reset_password.html",
             {
                 "request": request,
-                "reset_token": access_token
+                "user_id": user_id,
             }
         )
-        print(response.headers)
         return response
     except Exception as e:
         raise HTTPException(
@@ -85,12 +85,16 @@ async def user_reset_password_template(request: Request):
 
 
 @router.post("/reset-password")
-async def user_reset_password(request: Request, new_password: str = Form(...), reset_token: str = Form(...)):
-    if not reset_token:
-        raise HTTPException(status_code=401, detail="No reset token")
+async def user_reset_password(request: Request, new_password: str = Form(...), user_id: str = Form(...)):
+    if not user_id:
+        raise HTTPException(status_code=401, detail="No user details")
     try:
-        identity = await get_current_access_identity(token=reset_token)
+        print(request.headers)
+
+        access_token = create_access_token(user_id=user_id)
+        identity = await get_current_access_identity(token=access_token)
         result = user_controller.user_reset_password(new_password, identity)
+
         response = templates.TemplateResponse(
             "reset_password_result.html",
             {
@@ -120,6 +124,7 @@ async def refresh_new_token(refresh_token: str):
 @router.get("/{user_id}", response_model=UserEntity)
 @user_permission_check
 async def get_user_by_id(user_id: str, identity: UserEntity = Depends(get_current_access_identity)):
+    print(identity)
     return user_controller.get_user_by_id(user_id)
 
 

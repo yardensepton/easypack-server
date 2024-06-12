@@ -28,6 +28,8 @@ def validate_token_payload(payload_dict: dict) -> TokenPayload:
 
 
 async def get_current_access_identity(token: str = Depends(reusable_oauth)) -> UserEntity:
+    if token is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Please sign in")
     payload_dict = decode_token(token, JWT_ACCESS_SECRET)
     token_payload = validate_token_payload(payload_dict)
     return user_service.get_user_by_id(user_id=token_payload.user_id)
