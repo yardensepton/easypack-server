@@ -1,6 +1,6 @@
 import pyshorteners
 
-from fastapi import APIRouter, HTTPException, Depends, Cookie, Form
+from fastapi import APIRouter, HTTPException, Depends, Form
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import EmailStr
 
@@ -45,9 +45,9 @@ async def login_user(user_data: OAuth2PasswordRequestForm = Depends()):
     user_from_db: UserEntity = user_controller.authenticate_user_or_abort(user_model)
     access_token = create_access_token(user_from_db.id)
     refresh_token = create_refresh_token(user_from_db.id)
-    response = JSONResponse(status_code=status.HTTP_200_OK, content={"access_token": access_token,
-                                                                     "token_type": "bearer"})
-    response.set_cookie(key="refresh_token", value=refresh_token)
+    response = JSONResponse(status_code=status.HTTP_200_OK,
+                            content={"access_token": access_token, "refresh_token": refresh_token,
+                                     "token_type": "bearer"})
     return response
 
 
@@ -73,10 +73,11 @@ async def user_reset_password_template(request: Request):
         response = templates.TemplateResponse(
             "reset_password.html",
             {
-                "request": request
+                "request": request,
+                "reset_token": access_token
             }
         )
-        response.set_cookie(key="reset_token", value=access_token, httponly=True, secure=True)
+        print(response.headers)
         return response
     except Exception as e:
         raise HTTPException(
@@ -84,8 +85,7 @@ async def user_reset_password_template(request: Request):
 
 
 @router.post("/reset-password")
-async def user_reset_password(request: Request, new_password: str = Form(...)
-                              , reset_token: str = Cookie(None)):
+async def user_reset_password(request: Request, new_password: str = Form(...), reset_token: str = Form(...)):
     if not reset_token:
         raise HTTPException(status_code=401, detail="No reset token")
     try:
@@ -98,7 +98,6 @@ async def user_reset_password(request: Request, new_password: str = Form(...)
                 "success": result
             }
         )
-        response.delete_cookie("reset_token")
         return response
     except ValueError as e:
         raise HTTPException(
@@ -109,7 +108,7 @@ async def user_reset_password(request: Request, new_password: str = Form(...)
 
 
 @router.post("/refresh")
-async def refresh_new_token(refresh_token: str = Cookie(None)):
+async def refresh_new_token(refresh_token: str):
     if not refresh_token:
         raise HTTPException(status_code=401, detail="No refresh token")
     user = await get_current_refresh_identity(refresh_token)

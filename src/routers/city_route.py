@@ -44,11 +44,9 @@ async def city_autocomplete(prefix: str, pagination_params: Params = Depends()) 
 async def get_city_photo_reference(place_id: str) -> Optional[str]:
     url = f"https://maps.googleapis.com/maps/api/place/details/json"
 
-    google_api_key = load_env("GOOGLE_API_KEY")
-
     params = {
         "placeid": place_id,
-        "key": google_api_key
+        "key": GOOGLE_API_KEY
     }
 
     try:
