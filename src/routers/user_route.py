@@ -36,7 +36,8 @@ shortener = pyshorteners.Shortener()
 
 @router.post("/sign-up", response_model=UserEntity)
 async def create_user(user: UserBoundary):
-    return user_controller.create_user(user)
+    new_user = user_controller.create_user(user)
+    return JSONResponse(status_code=status.HTTP_200_OK, content=new_user.dict())
 
 
 @router.post("/login")
@@ -56,7 +57,9 @@ async def user_forgot_password(request: Request, user_email: EmailStr):
     user: UserEntity = user_controller.get_user_by_email(user_email)
     if user:
         # TODO: add email to parmeter
-        url = f"{request.base_url}users/reset-password-template?user_id={user.id}"
+        # url = f"{request.base_url}users/reset-password-template?user_id={user.id}"
+        url = f"{request.base_url}users/reset-password-template?user_email={user_email}"
+
         short_url = shortener.tinyurl.short(url)
         await send_reset_password_mail(recipient_email=user_email, user=user, url=short_url,
                                        expire_in_minutes=60)
@@ -70,13 +73,13 @@ async def user_forgot_password(request: Request, user_email: EmailStr):
 @router.get("/reset-password-template")
 async def user_reset_password_template(request: Request):
     try:
-        user_id = request.query_params.get('user_id')
-
+        # user_id = request.query_params.get('user_email')
+        user_email = request.query_params.get('user_email')
         response = templates.TemplateResponse(
             "reset_password.html",
             {
                 "request": request,
-                "user_id": user_id,
+                "user_email": user_email,
             }
         )
         return response
@@ -86,13 +89,14 @@ async def user_reset_password_template(request: Request):
 
 
 @router.post("/reset-password")
-async def user_reset_password(request: Request, new_password: str = Form(...), user_id: str = Form(...)):
-    if not user_id:
+async def user_reset_password(request: Request, new_password: str = Form(...), user_email: str = Form(...)):
+    if not user_email:
         raise HTTPException(status_code=401, detail="No user details")
     try:
         print(request.headers)
 
-        access_token = create_access_token(user_id=user_id)
+        user: UserEntity = user_controller.get_user_by_email(user_email)
+        access_token = create_access_token(user_id=user.id)
         identity = await get_current_access_identity(token=access_token)
         result = user_controller.user_reset_password(new_password, identity)
 
@@ -126,7 +130,8 @@ async def refresh_new_token(refresh_token: str):
 @user_permission_check
 async def get_user_by_id(user_id: str, identity: UserEntity = Depends(get_current_access_identity)):
     print(identity)
-    return user_controller.get_user_by_id(user_id)
+    user = user_controller.get_user_by_id(user_id)
+    return JSONResponse(status_code=status.HTTP_200_OK, content=user.dict())
 
 
 @router.delete("/{user_id}", response_model=None)
@@ -141,4 +146,5 @@ async def delete_user_by_id(user_id: str, identity: UserEntity = Depends(get_cur
 @user_permission_check
 async def update_user_by_id(new_info: UserSchema, user_id: str,
                             identity: UserEntity = Depends(get_current_access_identity)):
-    return user_controller.update_user_by_id(new_info, user_id)
+    updated_user = user_controller.update_user_by_id(new_info, user_id)
+    return JSONResponse(status_code=status.HTTP_200_OK, content=updated_user.dict())
