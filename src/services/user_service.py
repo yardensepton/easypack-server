@@ -1,8 +1,10 @@
 import logging
+from datetime import datetime, timedelta
 from typing import Dict
 
 from pydantic import EmailStr
 
+from config import RESET_PASSWORD_TIME_EXPIRE
 from db import db
 from src.models.auth_info import AuthInfo
 from src.models.user_boundary import UserBoundary
@@ -71,7 +73,13 @@ class UserService:
             raise AuthorizationError(obj_name="user", obj_id=user_model.username)
         return user
 
-    def user_reset_password(self, new_password: str, user: UserEntity) -> UserEntity:
+    def user_reset_password(self, new_password: str, user: UserEntity,date:str) -> bool:
         if user is not None:
-            user.password = get_password_hash(new_password)
-            return self.db_handler.find_one_and_update(user.dict(), user.id)
+            current_time = datetime.now()
+            given_datetime = datetime.strptime(date, "%Y-%m-%d %H:%M:%S.%f")
+            time_difference = current_time - given_datetime
+            if time_difference <= timedelta(minutes=RESET_PASSWORD_TIME_EXPIRE):
+                user.password = get_password_hash(new_password)
+                self.db_handler.find_one_and_update(user.dict(), user.id)
+                return True
+        return False

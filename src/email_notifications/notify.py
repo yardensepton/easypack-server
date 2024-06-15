@@ -8,7 +8,7 @@ conf = ConnectionConfig(
     MAIL_FROM="yardensepton@email.com",
     MAIL_PORT=587,
     MAIL_SERVER="smtp.gmail.com",
-    MAIL_FROM_NAME="EasyPack Developers",
+    MAIL_FROM_NAME="Easy Pack Support",
     MAIL_STARTTLS=True,
     MAIL_SSL_TLS=False,
     USE_CREDENTIALS=True,
@@ -25,7 +25,7 @@ async def send_reset_password_mail(recipient_email, user, url, expire_in_minutes
     }
     try:
         message = MessageSchema(
-            subject="EasyPack - Reset Password",
+            subject="Easy Pack - Reset Password",
             recipients=[recipient_email],
             template_body=template_body,
             subtype=MessageType.html

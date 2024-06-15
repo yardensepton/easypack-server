@@ -5,8 +5,8 @@ from fastapi.security import OAuth2PasswordBearer
 MONGO_DB_NAME = "EasyPack"
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
-# REFRESH_TOKEN_EXPIRE_MINUTES = 60 * 4
 REFRESH_TOKEN_EXPIRE_DAYS = 7
+RESET_PASSWORD_TIME_EXPIRE = 5
 
 load_dotenv()
 

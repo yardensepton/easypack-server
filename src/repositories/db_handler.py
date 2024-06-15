@@ -66,7 +66,6 @@ class DBHandler(DBHandlerBase):
             {"$push": {new_info_name: new_info}},
             return_document=ReturnDocument.AFTER
         )
-        print(updated)
         # Initialize the updated object if found
         if updated is not None:
             return self.init(updated)

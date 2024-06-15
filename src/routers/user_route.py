@@ -56,13 +56,11 @@ async def login_user(user_data: OAuth2PasswordRequestForm = Depends()):
 async def user_forgot_password(request: Request, user_email: EmailStr):
     user: UserEntity = user_controller.get_user_by_email(user_email)
     if user:
-        # TODO: add email to parmeter
-        # url = f"{request.base_url}users/reset-password-template?user_id={user.id}"
-        url = f"{request.base_url}users/reset-password-template?user_email={user_email}"
+        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
+        url = f"{request.base_url}users/reset-password-template?user_email={user_email}&time={current_time}"
 
-        short_url = shortener.tinyurl.short(url)
-        await send_reset_password_mail(recipient_email=user_email, user=user, url=short_url,
-                                       expire_in_minutes=60)
+        await send_reset_password_mail(recipient_email=user_email, user=user, url=url,
+                                       expire_in_minutes=RESET_PASSWORD_TIME_EXPIRE)
         return {
             "result": f"An email has been sent to {user_email} with a link for password reset."
         }
@@ -73,13 +71,14 @@ async def user_forgot_password(request: Request, user_email: EmailStr):
 @router.get("/reset-password-template")
 async def user_reset_password_template(request: Request):
     try:
-        # user_id = request.query_params.get('user_email')
         user_email = request.query_params.get('user_email')
+        time = request.query_params.get('time')
         response = templates.TemplateResponse(
             "reset_password.html",
             {
                 "request": request,
                 "user_email": user_email,
+                "time": time
             }
         )
         return response
@@ -89,17 +88,15 @@ async def user_reset_password_template(request: Request):
 
 
 @router.post("/reset-password")
-async def user_reset_password(request: Request, new_password: str = Form(...), user_email: str = Form(...)):
+async def user_reset_password(request: Request, new_password: str = Form(...), user_email: str = Form(...),
+                              time: str = Form(...)):
     if not user_email:
         raise HTTPException(status_code=401, detail="No user details")
     try:
-        print(request.headers)
-
         user: UserEntity = user_controller.get_user_by_email(user_email)
         access_token = create_access_token(user_id=user.id)
         identity = await get_current_access_identity(token=access_token)
-        result = user_controller.user_reset_password(new_password, identity)
-
+        result = user_controller.user_reset_password(new_password, identity, time)
         response = templates.TemplateResponse(
             "reset_password_result.html",
             {
@@ -108,9 +105,6 @@ async def user_reset_password(request: Request, new_password: str = Form(...), u
             }
         )
         return response
-    except ValueError as e:
-        raise HTTPException(
-            status_code=400, detail=f"{e}")
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"An unexpected error occurred. Report this message to support: {e}")
@@ -129,17 +123,17 @@ async def refresh_new_token(refresh_token: str):
 @router.get("/{user_id}", response_model=UserEntity)
 @user_permission_check
 async def get_user_by_id(user_id: str, identity: UserEntity = Depends(get_current_access_identity)):
-    print(identity)
     user = user_controller.get_user_by_id(user_id)
     return JSONResponse(status_code=status.HTTP_200_OK, content=user.dict())
 
 
-@router.delete("/{user_id}", response_model=None)
+@router.delete("/{user_id}")
 @user_permission_check
 async def delete_user_by_id(user_id: str, identity: UserEntity = Depends(get_current_access_identity)):
     user_controller.get_user_by_id(user_id)
     trip_controller.delete_trips_by_user_id(user_id)
     user_controller.delete_user_by_id(user_id)
+    return JSONResponse(status_code=status.HTTP_200_OK, content=f"user {user_id} deleted")
 
 
 @router.put("/{user_id}", response_model=UserEntity)
