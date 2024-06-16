@@ -73,12 +73,17 @@ async def user_reset_password_template(request: Request):
     try:
         user_email = request.query_params.get('user_email')
         time = request.query_params.get('time')
+        current_time = datetime.now()
+        given_datetime = datetime.strptime(time, "%Y-%m-%d %H:%M:%S.%f")
+        time_difference = current_time - given_datetime
+        is_success = time_difference <= timedelta(minutes=RESET_PASSWORD_TIME_EXPIRE)
         response = templates.TemplateResponse(
             "reset_password.html",
             {
                 "request": request,
                 "user_email": user_email,
-                "time": time
+                "time": time,
+                "success": is_success
             }
         )
         return response
@@ -88,15 +93,14 @@ async def user_reset_password_template(request: Request):
 
 
 @router.post("/reset-password")
-async def user_reset_password(request: Request, new_password: str = Form(...), user_email: str = Form(...),
-                              time: str = Form(...)):
+async def user_reset_password(request: Request, new_password: str = Form(...), user_email: str = Form(...)):
     if not user_email:
         raise HTTPException(status_code=401, detail="No user details")
     try:
         user: UserEntity = user_controller.get_user_by_email(user_email)
         access_token = create_access_token(user_id=user.id)
         identity = await get_current_access_identity(token=access_token)
-        result = user_controller.user_reset_password(new_password, identity, time)
+        result = user_controller.user_reset_password(new_password, identity)
         response = templates.TemplateResponse(
             "reset_password_result.html",
             {

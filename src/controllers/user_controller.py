@@ -37,5 +37,5 @@ class UserController:
     def authenticate_user_or_abort(self, user_model: AuthInfo) -> UserEntity:
         return self.user_service.authenticate_user_or_abort(user_model)
 
-    def user_reset_password(self, new_password: str, user: UserEntity,time:str) -> bool:
-        return self.user_service.user_reset_password(new_password, user,time)
+    def user_reset_password(self, new_password: str, user: UserEntity) -> bool:
+        return self.user_service.user_reset_password(new_password, user)

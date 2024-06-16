@@ -73,13 +73,9 @@ class UserService:
             raise AuthorizationError(obj_name="user", obj_id=user_model.username)
         return user
 
-    def user_reset_password(self, new_password: str, user: UserEntity,date:str) -> bool:
+    def user_reset_password(self, new_password: str, user: UserEntity) -> bool:
         if user is not None:
-            current_time = datetime.now()
-            given_datetime = datetime.strptime(date, "%Y-%m-%d %H:%M:%S.%f")
-            time_difference = current_time - given_datetime
-            if time_difference <= timedelta(minutes=RESET_PASSWORD_TIME_EXPIRE):
-                user.password = get_password_hash(new_password)
-                self.db_handler.find_one_and_update(user.dict(), user.id)
-                return True
+            user.password = get_password_hash(new_password)
+            self.db_handler.find_one_and_update(user.dict(), user.id)
+            return True
         return False
