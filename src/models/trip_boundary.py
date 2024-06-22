@@ -1,17 +1,15 @@
-import typing
-
-from src.models import Field, PyObjectId, ConfigDict
+from typing import Optional
+from src.models import ConfigDict
 from src.models.trip_schema import TripSchema
 
 
 class TripBoundary(TripSchema):
-    user_id: str
+    user_id: Optional[str] = None
     model_config = ConfigDict(
         populate_by_name=True,
         arbitrary_types_allowed=True,
         json_schema_extra={
             "example": {
-                "user_id": "your_user_id_value",
                 "destination": {
                     "text": "tel aviv, Israel",
                     "place_id": "1234",

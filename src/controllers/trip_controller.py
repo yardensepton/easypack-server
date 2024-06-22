@@ -1,8 +1,13 @@
-from datetime import datetime
+from datetime import datetime, date
 from typing import List
+
+from starlette.websockets import WebSocket
+
 from src.controllers.packing_list_controller import PackingListController
+from src.models.city import City
 from src.models.trip_boundary import TripBoundary
 from src.models.trip_entity import TripEntity
+from src.models.trip_info import TripInfo
 from src.models.trip_schema import TripSchema
 from src.models.user_entity import UserEntity
 from src.exceptions.input_error import InputError
@@ -15,10 +20,9 @@ class TripController:
         self.trip_service = TripService()
         self.packing_list_controller = PackingListController()
 
-    def create_trip(self, trip: TripBoundary) -> TripEntity:
+    def create_trip(self, trip: TripBoundary, user_id: str) -> TripEntity:
         trip_entity: TripEntity = TripEntity(departure_date=trip.departure_date, return_date=trip.return_date,
-                                             user_id=trip.user_id, destination=trip.destination)
-        user_id = trip_entity.user_id
+                                             user_id=user_id, destination=trip.destination)
         departure_date = trip_entity.departure_date
         return_date = trip_entity.return_date
         if self.availability_within_date_range(
@@ -30,6 +34,41 @@ class TripController:
 
     def get_trips_by_user_id(self, user_id: str) -> List[TripEntity]:
         return self.trip_service.get_trips_by_user_id(user_id=user_id)
+
+    def sort_users_trips(self, user_id: str) -> List[TripEntity]:
+        trips: List[TripEntity] = self.trip_service.get_trips_by_user_id(user_id=user_id)
+
+        # Parse the departure_date strings into datetime.date objects
+        for trip in trips:
+            trip.departure_date = datetime.strptime(trip.departure_date, "%Y-%m-%d").date()
+
+        # Filter trips to only include those from today onward
+        today = datetime.now().date()
+        future_trips = [trip for trip in trips if trip.departure_date >= today]
+
+        # Sort the list by departure_date
+        future_trips.sort(key=lambda trip: trip.departure_date)
+
+        # Convert the datetime.date objects back to strings for return
+        for trip in future_trips:
+            trip.departure_date = trip.departure_date.strftime("%Y-%m-%d")
+
+        return future_trips
+
+    def get_sorted_trips_info(self, user_id: str) -> List[TripInfo]:
+        trips: List[TripEntity] = self.sort_users_trips(user_id=user_id)
+        trip_info_list: List[TripInfo] = []
+        for trip in trips:
+            destination: City = trip.destination
+            destination_name = destination.name
+            trip_info_list.append(
+                TripInfo(trip_id=trip.trip_id, departure_date=trip.departure_date, return_date=trip.return_date,
+                         destiantion=destination_name))
+        return trip_info_list
+
+    def get_users_upcoming_trip(self, user_id: str) -> TripEntity:
+        trips: List[TripEntity] = self.sort_users_trips(user_id=user_id)
+        return trips[0] if trips else None
 
     def delete_trip_by_id(self, trip_id: str):
         self.trip_service.delete_trip_by_id(trip_id=trip_id)
@@ -115,3 +154,4 @@ class TripController:
             if date1 > date2:
                 raise InputError("Return date is before departure date")
         return True
+
