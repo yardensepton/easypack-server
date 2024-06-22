@@ -1,4 +1,11 @@
+import asyncio
 from typing import List
+
+from bson import json_util
+import json
+from pymongo.errors import PyMongoError
+from starlette.websockets import WebSocket, WebSocketDisconnect
+from watchfiles import Change
 
 from src.models.trip_entity import TripEntity
 from src.models.trip_schema import TripSchema
@@ -8,8 +15,10 @@ from src.repositories.trips_db import TripsDB
 
 
 class TripService:
+
     def __init__(self):
         self.db_handler = TripsDB(db, "TRIPS")
+        self.active_connections: List[WebSocket] = []
 
     def create_trip(self, trip: TripEntity) -> TripEntity:
         return self.db_handler.insert_one(trip)
@@ -47,3 +56,34 @@ class TripService:
 
     def get_all_trips(self) -> List[TripEntity]:
         return self.db_handler.find_all()
+
+    # async def listen_to_changes_in_db(self, websocket: WebSocket):
+    #     self.active_connections.append(websocket)
+    #     pipeline = [
+    #         {
+    #             '$match': {
+    #                 'operationType': {'$in': ['insert', 'delete']},
+    #                 # 'fullDocument.user_id': user_id  # Assuming user_id field in the document
+    #             }
+    #         }
+    #     ]
+    #
+    #     stream = self.db_handler.watch(pipeline)
+    #
+    #     try:
+    #         while True:
+    #             try:
+    #                 change = await asyncio.to_thread(stream.next)
+    #                 if change:
+    #                     # Convert change to JSON serializable format
+    #                     # Notify connected WebSocket clients about the change
+    #                     await websocket.send_text("update in db")
+    #             except WebSocketDisconnect:
+    #                 break
+    #             except PyMongoError as e:
+    #                 print(f"Error in change stream: {e}")
+    #                 break
+    #     finally:
+    #         self.active_connections.remove(websocket)
+    #         await websocket.close()
+    #         stream.close()

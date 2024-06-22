@@ -1,5 +1,3 @@
-import pyshorteners
-
 from fastapi import APIRouter, HTTPException, Depends, Form
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import EmailStr
@@ -31,7 +29,6 @@ router = APIRouter(
 
 user_controller = UserController()
 trip_controller = TripController()
-shortener = pyshorteners.Shortener()
 
 
 @router.post("/sign-up", response_model=UserEntity)
@@ -57,7 +54,7 @@ async def user_forgot_password(request: Request, user_email: EmailStr):
     user: UserEntity = user_controller.get_user_by_email(user_email)
     if user:
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
-        url = f"{request.base_url}users/reset-password-template?user_email={user_email}&time={current_time}"
+        url = f"{request.base_url}users/reset-password-template?user_email={user_email}&time={current_time}&key={user.password}"
 
         await send_reset_password_mail(recipient_email=user_email, user=user, url=url,
                                        expire_in_minutes=RESET_PASSWORD_TIME_EXPIRE)
@@ -77,6 +74,7 @@ async def user_reset_password_template(request: Request):
         given_datetime = datetime.strptime(time, "%Y-%m-%d %H:%M:%S.%f")
         time_difference = current_time - given_datetime
         is_success = time_difference <= timedelta(minutes=RESET_PASSWORD_TIME_EXPIRE)
+        print(is_success)
         response = templates.TemplateResponse(
             "reset_password.html",
             {
