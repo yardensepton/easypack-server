@@ -41,8 +41,8 @@ async def create_user(user: UserBoundary):
 async def login_user(user_data: OAuth2PasswordRequestForm = Depends()):
     user_model: AuthInfo = AuthInfo(username=user_data.username, password=user_data.password)
     user_from_db: UserEntity = user_controller.authenticate_user_or_abort(user_model)
-    access_token = create_access_token(user_from_db.id)
-    refresh_token = create_refresh_token(user_from_db.id)
+    access_token = create_access_token(user_from_db.id, user_password=user_data.password)
+    refresh_token = create_refresh_token(user_id=user_from_db.id, user_password=user_data.password)
     response = JSONResponse(status_code=status.HTTP_200_OK,
                             content={"access_token": access_token, "refresh_token": refresh_token,
                                      "token_type": "bearer"})
@@ -54,7 +54,7 @@ async def user_forgot_password(request: Request, user_email: EmailStr):
     user: UserEntity = user_controller.get_user_by_email(user_email)
     if user:
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
-        url = f"{request.base_url}users/reset-password-template?user_email={user_email}&time={current_time}&key={user.password}"
+        url = f"{request.base_url}users/reset-password-template?user_email={user_email}&time={current_time}"
 
         await send_reset_password_mail(recipient_email=user_email, user=user, url=url,
                                        expire_in_minutes=RESET_PASSWORD_TIME_EXPIRE)
@@ -74,7 +74,6 @@ async def user_reset_password_template(request: Request):
         given_datetime = datetime.strptime(time, "%Y-%m-%d %H:%M:%S.%f")
         time_difference = current_time - given_datetime
         is_success = time_difference <= timedelta(minutes=RESET_PASSWORD_TIME_EXPIRE)
-        print(is_success)
         response = templates.TemplateResponse(
             "reset_password.html",
             {
@@ -96,9 +95,7 @@ async def user_reset_password(request: Request, new_password: str = Form(...), u
         raise HTTPException(status_code=401, detail="No user details")
     try:
         user: UserEntity = user_controller.get_user_by_email(user_email)
-        access_token = create_access_token(user_id=user.id)
-        identity = await get_current_access_identity(token=access_token)
-        result = user_controller.user_reset_password(new_password, identity)
+        result = user_controller.user_reset_password(new_password, user)
         response = templates.TemplateResponse(
             "reset_password_result.html",
             {
@@ -116,8 +113,9 @@ async def user_reset_password(request: Request, new_password: str = Form(...), u
 async def refresh_new_token(refresh_token: str):
     if not refresh_token:
         raise HTTPException(status_code=401, detail="No refresh token")
-    user = await get_current_refresh_identity(refresh_token)
-    access_token = create_access_token(user.id)
+    user: UserEntity = await get_current_refresh_identity(refresh_token)
+    print("user changed password to "+user.password)
+    access_token = create_access_token(user_id=user.id, user_password=user.password)
     return JSONResponse(status_code=status.HTTP_200_OK, content={"access_token": access_token,
                                                                  "token_type": "bearer"})
 
