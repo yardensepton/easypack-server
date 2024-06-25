@@ -1,15 +1,11 @@
 from datetime import datetime, date
 from typing import List
 
-from starlette.websockets import WebSocket
-
 from src.controllers.packing_list_controller import PackingListController
 from src.models.city import City
-from src.models.trip_boundary import TripBoundary
 from src.models.trip_entity import TripEntity
 from src.models.trip_info import TripInfo
 from src.models.trip_schema import TripSchema
-from src.models.user_entity import UserEntity
 from src.exceptions.input_error import InputError
 from src.services.trip_service import TripService
 
@@ -20,14 +16,8 @@ class TripController:
         self.trip_service = TripService()
         self.packing_list_controller = PackingListController()
 
-    def create_trip(self, trip: TripBoundary, user_id: str) -> TripEntity:
-        trip_entity: TripEntity = TripEntity(departure_date=trip.departure_date, return_date=trip.return_date,
-                                             user_id=user_id, destination=trip.destination)
-        departure_date = trip_entity.departure_date
-        return_date = trip_entity.return_date
-        if self.availability_within_date_range(
-                user_id, departure_date, return_date, trip_entity.id):
-            return self.trip_service.create_trip(trip=trip_entity)
+    def create_trip(self, trip_entity: TripEntity) -> TripEntity:
+        return self.trip_service.create_trip(trip=trip_entity)
 
     def get_trip_by_id(self, trip_id: str) -> TripEntity:
         return self.trip_service.get_trip_by_id(trip_id=trip_id)
@@ -57,13 +47,14 @@ class TripController:
 
     def get_sorted_trips_info(self, user_id: str) -> List[TripInfo]:
         trips: List[TripEntity] = self.sort_users_trips(user_id=user_id)
+
         trip_info_list: List[TripInfo] = []
         for trip in trips:
             destination: City = trip.destination
-            destination_name = destination.name
+            destination_name = destination.text
             trip_info_list.append(
-                TripInfo(trip_id=trip.trip_id, departure_date=trip.departure_date, return_date=trip.return_date,
-                         destiantion=destination_name))
+                TripInfo(trip_id=trip.id, departure_date=trip.departure_date, return_date=trip.return_date,
+                         destination=destination_name, city_url=destination.city_url))
         return trip_info_list
 
     def get_users_upcoming_trip(self, user_id: str) -> TripEntity:
@@ -154,4 +145,3 @@ class TripController:
             if date1 > date2:
                 raise InputError("Return date is before departure date")
         return True
-

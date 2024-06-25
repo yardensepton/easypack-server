@@ -41,8 +41,8 @@ async def create_user(user: UserBoundary):
 async def login_user(user_data: OAuth2PasswordRequestForm = Depends()):
     user_model: AuthInfo = AuthInfo(username=user_data.username, password=user_data.password)
     user_from_db: UserEntity = user_controller.authenticate_user_or_abort(user_model)
-    access_token = create_access_token(user_from_db.id, user_password=user_data.password)
-    refresh_token = create_refresh_token(user_id=user_from_db.id, user_password=user_data.password)
+    access_token = create_access_token(user_from_db.id)
+    refresh_token = create_refresh_token(user_id=user_from_db.id)
     response = JSONResponse(status_code=status.HTTP_200_OK,
                             content={"access_token": access_token, "refresh_token": refresh_token,
                                      "token_type": "bearer"})
@@ -111,11 +111,12 @@ async def user_reset_password(request: Request, new_password: str = Form(...), u
 
 @router.post("/refresh")
 async def refresh_new_token(refresh_token: str):
+    print("refresh toke is called")
     if not refresh_token:
         raise HTTPException(status_code=401, detail="No refresh token")
     user: UserEntity = await get_current_refresh_identity(refresh_token)
-    print("user changed password to "+user.password)
-    access_token = create_access_token(user_id=user.id, user_password=user.password)
+    print("user changed password to " + user.password)
+    access_token = create_access_token(user_id=user.id)
     return JSONResponse(status_code=status.HTTP_200_OK, content={"access_token": access_token,
                                                                  "token_type": "bearer"})
 

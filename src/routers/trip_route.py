@@ -14,9 +14,11 @@ from src.models.trip_info import TripInfo
 from src.models.trip_schema import TripSchema
 from src.models.user_entity import UserEntity
 from src.enums.role_options import RoleOptions
+from src.models.weather import WeatherDay
 from src.utils.authantication.current_identity_utils import get_current_access_identity
-from src.utils.decorators.relationship_decorator import user_trip_obj_access_or_abort, user_trip_access_or_abort
+from src.utils.decorators.relationship_decorator import user_trip_access_or_abort
 from src.utils.decorators.user_decorator import user_permission_check
+from src.routers.weather_route import get_weather
 
 router = APIRouter(
     prefix="/trips",
@@ -31,9 +33,19 @@ active_websockets: List[WebSocket] = []
 
 @router.post("", response_model=TripEntity)
 async def create_trip(trip: TripBoundary, identity: UserEntity = Depends(get_current_access_identity)):
-    trip: TripEntity = trip_controller.create_trip(trip, identity.id)
-    await notify_trip_update({"event": "new_trip"})
-    return JSONResponse(status_code=status.HTTP_200_OK, content=trip.dict())
+    trip_entity: TripEntity = TripEntity(departure_date=trip.departure_date, return_date=trip.return_date,
+                                         user_id=identity.id, destination=trip.destination)
+    if trip_controller.availability_within_date_range(identity.id, trip.departure_date, trip.return_date,
+                                                      trip_entity.id):
+        weather_data: List[WeatherDay] = await get_weather(trip_entity.destination.city_name,
+                                                           trip_entity.departure_date,
+                                                           trip_entity.return_date)
+        trip_entity.weather_data = weather_data
+        trip_entity_in_db: TripEntity = trip_controller.create_trip(trip_entity)
+
+        await notify_trip_update({"event": "new_trip"})
+
+        return JSONResponse(status_code=status.HTTP_200_OK, content=trip_entity_in_db.dict())
 
 
 @router.get("", response_model=Union[TripEntity, Optional[List[TripEntity]]])
@@ -73,6 +85,7 @@ async def get_trips_by_user_id(user_id: str, identity: UserEntity):
 
 
 async def notify_trip_update(message: dict):
+    print(len(active_websockets))
     for websocket in active_websockets:
         try:
             await websocket.send_json(message)

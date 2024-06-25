@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from pydantic import EmailStr
 
 from src.common.common_validation import validate_non_none_fields
