@@ -8,6 +8,7 @@ from starlette.websockets import WebSocket, WebSocketDisconnect
 from src.controllers import UserController
 from src.controllers.packing_list_controller import PackingListController
 from src.controllers.trip_controller import TripController
+from src.enums.timeline_options import TimelineOptions
 from src.models.trip_boundary import TripBoundary
 from src.models.trip_entity import TripEntity
 from src.models.trip_info import TripInfo
@@ -85,10 +86,15 @@ async def get_trips_by_user_id(user_id: str, identity: UserEntity):
 
 
 async def notify_trip_update(message: dict):
+    print("len(active_websockets)")
     print(len(active_websockets))
+    print("i am sending message")
     for websocket in active_websockets:
         try:
+            print("ok i am sending")
             await websocket.send_json(message)
+            # await websocket.receive()
+
         except Exception as e:
             print(f"Error sending message to WebSocket: {e}")
 
@@ -101,8 +107,9 @@ async def trip_updates_ws(websocket: WebSocket):
 
     try:
         while True:
-            await websocket.receive_text()
-
+            data = await websocket.receive_text()
+            for client in active_websockets:
+                print(f"Message text was: {data}")
     except Exception as e:
         print(f"WebSocket connection error: {e}")
 
@@ -111,18 +118,19 @@ async def trip_updates_ws(websocket: WebSocket):
 
 
 @router.get("/sorted", response_model=Union[TripInfo, Optional[List[TripInfo]]])
-async def get_trips_info_by_current_user(identity: UserEntity = Depends(get_current_access_identity)):
+async def get_sorted_trips_info_by_current_user(identity: UserEntity = Depends(get_current_access_identity),
+                                                timeline: TimelineOptions = Query(TimelineOptions.FUTURE)):
     user_controller.get_user_by_id(identity.id)
-    trips: List[TripInfo] = trip_controller.get_sorted_trips_info(identity.id)
-    if trips is None or len(trips) == 0:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No trips found for this user")
+    trips: List[TripInfo] = trip_controller.get_sorted_trips_info(identity.id, timeline)
+    print(f"trips len is {len(trips)} for {timeline} ")
     return JSONResponse(status_code=status.HTTP_200_OK, content=[trip.dict() for trip in trips])
 
 
 @router.get("/upcoming-trip", response_model=TripEntity)
-async def get_users_upcoming_trip(identity: UserEntity = Depends(get_current_access_identity)):
+async def get_users_upcoming_trip(identity: UserEntity = Depends(get_current_access_identity),
+                                  timeline: TimelineOptions = Query(TimelineOptions.FUTURE)):
     user_controller.get_user_by_id(identity.id)
-    upcoming_trip: TripEntity = trip_controller.get_users_upcoming_trip(identity.id)
+    upcoming_trip: TripEntity = trip_controller.get_users_upcoming_trip(identity.id, timeline)
     if upcoming_trip is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No trips found for this user")
     return JSONResponse(status_code=status.HTTP_200_OK, content=upcoming_trip.dict())

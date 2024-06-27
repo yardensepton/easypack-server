@@ -2,6 +2,7 @@ from datetime import datetime, date
 from typing import List
 
 from src.controllers.packing_list_controller import PackingListController
+from src.enums.timeline_options import TimelineOptions
 from src.models.city import City
 from src.models.trip_entity import TripEntity
 from src.models.trip_info import TripInfo
@@ -25,28 +26,32 @@ class TripController:
     def get_trips_by_user_id(self, user_id: str) -> List[TripEntity]:
         return self.trip_service.get_trips_by_user_id(user_id=user_id)
 
-    def sort_users_trips(self, user_id: str) -> List[TripEntity]:
+    def sort_users_trips(self, user_id: str, timeline: TimelineOptions) -> List[TripEntity]:
         trips: List[TripEntity] = self.trip_service.get_trips_by_user_id(user_id=user_id)
 
         # Parse the departure_date strings into datetime.date objects
         for trip in trips:
             trip.departure_date = datetime.strptime(trip.departure_date, "%Y-%m-%d").date()
 
+        past_or_future_trips: List[TripEntity] = []
         # Filter trips to only include those from today onward
         today = datetime.now().date()
-        future_trips = [trip for trip in trips if trip.departure_date >= today]
+        if timeline == TimelineOptions.PAST:
+            past_or_future_trips = [trip for trip in trips if trip.departure_date <= today]
+        if timeline == TimelineOptions.FUTURE:
+            past_or_future_trips = [trip for trip in trips if trip.departure_date > today]
 
         # Sort the list by departure_date
-        future_trips.sort(key=lambda trip: trip.departure_date)
+        past_or_future_trips.sort(key=lambda trip: trip.departure_date)
 
         # Convert the datetime.date objects back to strings for return
-        for trip in future_trips:
+        for trip in past_or_future_trips:
             trip.departure_date = trip.departure_date.strftime("%Y-%m-%d")
 
-        return future_trips
+        return past_or_future_trips
 
-    def get_sorted_trips_info(self, user_id: str) -> List[TripInfo]:
-        trips: List[TripEntity] = self.sort_users_trips(user_id=user_id)
+    def get_sorted_trips_info(self, user_id: str, timeline: TimelineOptions) -> List[TripInfo]:
+        trips: List[TripEntity] = self.sort_users_trips(user_id=user_id, timeline=timeline)
 
         trip_info_list: List[TripInfo] = []
         for trip in trips:
@@ -57,8 +62,8 @@ class TripController:
                          destination=destination_name, city_url=destination.city_url))
         return trip_info_list
 
-    def get_users_upcoming_trip(self, user_id: str) -> TripEntity:
-        trips: List[TripEntity] = self.sort_users_trips(user_id=user_id)
+    def get_users_upcoming_trip(self, user_id: str, timeline: TimelineOptions) -> TripEntity:
+        trips: List[TripEntity] = self.sort_users_trips(user_id=user_id, timeline=timeline)
         return trips[0] if trips else None
 
     def delete_trip_by_id(self, trip_id: str):
