@@ -1,5 +1,5 @@
 import typing
-
+from typing import Optional
 from src.models import BaseModel, Field, PyObjectId
 
 
@@ -8,5 +8,5 @@ class Item(BaseModel):
     category: str
     name: str
     gender: str
-    season: str
-    occasion: str
+    temp_max: Optional[int] = None
+    temp_min: Optional[int] = None

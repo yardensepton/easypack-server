@@ -26,5 +26,5 @@ class ItemService:
             return items
         raise NotFoundError(obj_name="items", obj_id="")
 
-    def exists(self, key: str, value: str):
+    def exists(self, key: str, value: str | float):
         return self.db_handler.exists(key=key, value=value)

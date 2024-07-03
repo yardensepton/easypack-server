@@ -37,9 +37,9 @@ class TripController:
         # Filter trips to only include those from today onward
         today = datetime.now().date()
         if timeline == TimelineOptions.PAST:
-            past_or_future_trips = [trip for trip in trips if trip.departure_date <= today]
+            past_or_future_trips = [trip for trip in trips if trip.departure_date < today]
         if timeline == TimelineOptions.FUTURE:
-            past_or_future_trips = [trip for trip in trips if trip.departure_date > today]
+            past_or_future_trips = [trip for trip in trips if trip.departure_date >= today]
 
         # Sort the list by departure_date
         past_or_future_trips.sort(key=lambda trip: trip.departure_date)

@@ -142,6 +142,7 @@ async def delete_trip_by_id(trip_id: str, identity: UserEntity = Depends(get_cur
     packing_list_controller.get_packing_list_by_trip_id(trip_id)
     packing_list_controller.delete_packing_list_by_trip_id(trip_id)
     trip_controller.delete_trip_by_id(trip_id)
+    await notify_trip_update({"event": "trip_deleted"})
     return JSONResponse(status_code=status.HTTP_200_OK, content=f"Trip {trip_id} deleted")
 
 

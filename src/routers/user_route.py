@@ -44,7 +44,8 @@ async def login_user(user_data: OAuth2PasswordRequestForm = Depends()):
     access_token = create_access_token(user_from_db.id)
     refresh_token = create_refresh_token(user_id=user_from_db.id)
     response = JSONResponse(status_code=status.HTTP_200_OK,
-                            content={"access_token": access_token, "refresh_token": refresh_token,
+                            content={"user_name": user_from_db.name, "access_token": access_token,
+                                     "refresh_token": refresh_token,
                                      "token_type": "bearer"})
     return response
 

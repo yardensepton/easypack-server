@@ -23,12 +23,16 @@ async def city_autocomplete(prefix: str, pagination_params: Params = Depends()) 
     params = {
         "input": prefix,
         "types": "(cities)",
-        "key": GOOGLE_API_KEY
+        "key": GOOGLE_API_KEY,
+        "language": "en"
+    }
+    headers = {
+        "Accept-Charset": "utf-8"
     }
 
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.get(url, params=params)
+            response = await client.get(url, params=params, headers=headers)
             if response.status_code == 200:
                 data = response.json()
                 if "predictions" in data:

@@ -5,7 +5,7 @@ from src.exceptions.input_error import InputError
 from src.filter_pattern.category_filter import CategoryFilter
 from src.filter_pattern.filter import Filter
 from src.filter_pattern.gender_filter import GenderFilter
-from src.filter_pattern.season_filter import SeasonFilter
+from src.filter_pattern.temp_range_filter import TempRangeFilter
 from src.services.calculation_service import CalculationService
 from src.services.item_service import ItemService
 
@@ -23,11 +23,12 @@ class ItemController:
         items_result = self.item_service.get_all_items_by_category(category=category)
         return self.calculation_service.get_category_items_and_calculation(category, items_result)
 
-    def filter_items_by(self, category: str = None, season: str = None, gender: str = None) -> List[Item]:
+    def filter_items_by(self, category: str = None, temperature: float = None, gender: str = None) -> List[Item]:
 
-        if (category and not self.item_service.exists("category", category)) or (
-                gender and not self.item_service.exists("gender", gender)) or (
-                season and not self.item_service.exists("season", season)):
+        if ((category and not self.item_service.exists("category", category)) or (
+                gender and not self.item_service.exists("gender", gender))):
+            # or (
+            # temperature and not self.item_service.exists("temperature", temperature))):
             raise InputError("No items found matching the filters.")
 
         all_items = self.get_all_items()
@@ -35,8 +36,8 @@ class ItemController:
         filters: List[Filter] = []
         if category:
             filters.append(CategoryFilter(category))
-        if season:
-            filters.append(SeasonFilter(season))
+        if temperature:
+            filters.append(TempRangeFilter(temperature))
         if gender:
             filters.append(GenderFilter(gender))
 
