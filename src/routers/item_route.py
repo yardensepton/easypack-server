@@ -17,9 +17,9 @@ item_controller = ItemController()
 @router.get("", response_model=List[Item])
 async def get(category: str = Query(None, description="category"),
               temperature: float = Query(None, description="temperature"),
-              gender: str = Query(None, description="gender")
-              ):
-    return item_controller.filter_items_by(category, temperature, gender)
+              gender: str = Query(None, description="gender"),
+              default: bool = Query(None, description="default")):
+    return item_controller.filter_items_by(category, temperature, gender,default)
 
 
 @router.get("/amount-by", response_model=List[ItemAndCalculation])

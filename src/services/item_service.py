@@ -1,5 +1,5 @@
 import logging
-from typing import List
+from typing import List, Optional
 
 from db import db
 from src.models.item import Item
@@ -19,6 +19,24 @@ class ItemService:
         if items:
             return items
         raise NotFoundError(obj_name="items by category", obj_id=category)
+
+    def filter_items_by(self, category: Optional[str] = None, default: Optional[bool] = None,
+                        user_trip_average_temp: Optional[float] = None,
+                        user_gender: Optional[str] = None) -> List[Item]:
+        query = {}
+
+        print(category, default, user_trip_average_temp, user_gender)
+        if category:
+            query["category"] = category
+        if user_trip_average_temp:
+            query["temp_max"] = {"$gte": user_trip_average_temp}
+            query["temp_min"] = {"$lte": user_trip_average_temp}
+        if user_gender:
+            query["gender"] = {"$in": [user_gender, "all"]}
+        if default is not None:
+            query["default"] = default
+
+        return self.db_handler.find(query)
 
     def get_all_items(self) -> List[Item]:
         items = self.db_handler.find_all()

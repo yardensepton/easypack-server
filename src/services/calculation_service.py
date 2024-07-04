@@ -26,11 +26,11 @@ class CalculationService:
         if not calculation:
             raise NotFoundError(obj_name="calculation under the category", obj_id=category)
 
-        amount_per_day = calculation.amountPerDay
+        amount_per_day = calculation.amount_per_day
         item_boundaries = []
 
         for item in items_result:
-            item_boundary = ItemAndCalculation(category=category, name=item.name, amountPerDay=amount_per_day)
+            item_boundary = ItemAndCalculation(category=category, name=item.name, amount_per_day=amount_per_day)
             item_boundaries.append(item_boundary)
 
         return item_boundaries

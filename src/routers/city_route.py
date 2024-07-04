@@ -97,3 +97,35 @@ async def city_picture(place_id: str) -> str:
 
     except httpx.HTTPError as e:
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+
+@router.get("/lat-lon/{city_text}")
+async def get_lat_lon(city_text: str) -> dict:
+    if not city_text:
+        raise HTTPException(status_code=404, detail="No city given")
+
+    url = f"https://maps.googleapis.com/maps/api/geocode/json"
+    params = {
+        "address": city_text,
+        "key": GOOGLE_API_KEY
+    }
+
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, params=params)
+            response_data = response.json()
+
+            # Extract latitude and longitude
+            if response_data["status"] == "OK" and response_data["results"]:
+                location = response_data["results"][0]["geometry"]["location"]
+                lat = location["lat"]
+                lon = location["lng"]
+                return {"lat": lat, "lon": lon}
+            else:
+                raise HTTPException(status_code=404, detail="Location not found")
+
+    except httpx.HTTPError as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+    except KeyError as e:
+        raise HTTPException(status_code=500, detail=f"Unexpected response structure: {str(e)}")

@@ -38,7 +38,6 @@ async def get_weather(location: str, departure: str = Query(None, description="D
         "contentType": "json",
         "include": "days"
     }
-    weather_controller.get_average_weather()
 
     async with httpx.AsyncClient() as client:
         response = await client.get(url, params=params)

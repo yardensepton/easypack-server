@@ -9,9 +9,11 @@ from src.controllers.trip_controller import TripController
 from src.models.packing_list_entity import PackingListEntity
 from src.models.packing_list_boundary import PackingListBoundary
 from src.models.packing_list_update import PackingListUpdate
+from src.models.trip_entity import TripEntity
 from src.models.user_entity import UserEntity
 from src.utils.authantication.current_identity_utils import get_current_access_identity
 from src.utils.decorators.relationship_decorator import user_trip_access_or_abort
+from src.routers.city_route import get_lat_lon
 
 router = APIRouter(
     prefix="/packing-lists",
@@ -24,9 +26,11 @@ trip_controller = TripController()
 
 @router.post("/{trip_id}", response_model=PackingListEntity)
 @user_trip_access_or_abort
-async def create_packing_list(trip_id: str, packing_list: PackingListBoundary,
-                              identity: UserEntity = Depends(get_current_access_identity)):
-    pack_list: PackingListEntity = list_controller.create_packing_list(packing_list=packing_list, trip_id=trip_id)
+async def create_packing_list(trip_id: str, identity: UserEntity = Depends(get_current_access_identity)):
+    trip: TripEntity = trip_controller.get_trip_by_id(trip_id)
+    lat_lon: dict = await get_lat_lon(trip.destination.text)
+    pack_list: PackingListEntity = list_controller.create_packing_list(trip=trip,
+                                                                       user=identity, lat_lon=lat_lon)
     return JSONResponse(status_code=status.HTTP_200_OK, content=pack_list.dict())
 
 

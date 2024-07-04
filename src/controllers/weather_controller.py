@@ -1,10 +1,10 @@
 from datetime import datetime
 from typing import List
 import pandas as pd
-from src.models.city import City
+
+from src.enums.user_weather_feeling_options import UserWeatherFeelingOptions
 from src.models.weather import WeatherDay
 from meteostat import Monthly, Point
-from geopy.geocoders import Nominatim
 
 
 class WeatherController:
@@ -26,21 +26,68 @@ class WeatherController:
         return weather_objects
 
     @classmethod
-    def get_average_weather(cls):
-        # user_residence: City, departure_date: str, return_date: str
-        geolocator = Nominatim(user_agent="weather_app")
-        location = geolocator.geocode("tel aviv")
-        if location:
+    def get_average_weather(cls, start_date: datetime, end_date: datetime, lat_lon: dict) -> float:
+        if not lat_lon:
+            raise ValueError("Latitude and longitude must be provided")
 
-            start_month = pd.Period(year=2023, month=5, freq='M')
-            end_month = pd.Period(year=2023, month=5, freq='M')
-            start = start_month.start_time
-            end = end_month.end_time
-            point = Point(location.latitude, location.longitude)
-            data = Monthly(point, start, end)
-            data = data.fetch()
+        # Adjust the start and end months to fetch data for the previous year
+        start_month = pd.Period(year=start_date.year - 1, month=start_date.month, freq='M')
+        end_month = pd.Period(year=end_date.year - 1, month=end_date.month, freq='M')
+        start = start_month.start_time
+        end = end_month.end_time
+
+        point = Point(lat_lon.get('lat'), lat_lon.get('lon'))
+
+        print(lat_lon.get('lat'), lat_lon.get('lon'))
+
+        data = Monthly(point, start, end)
+        data = data.fetch()
+
+        if 'time' in data.columns:
+            data['time'] = pd.to_datetime(data['time'], format='%Y-%m-%d')
+
+        if 'tavg' in data:
             average_temp = data['tavg']
-            average_temp_dict = average_temp.dropna().to_dict()
-            average_temp_dict_str = {date.strftime('%Y-%m-%d'): temp for date, temp in average_temp_dict.items()}
+            average_temp_list = average_temp.dropna().tolist()
 
-            print(average_temp_dict_str)
+            if average_temp_list:
+                overall_average_temp = sum(average_temp_list) / len(average_temp_list)
+                return overall_average_temp
+            else:
+                raise ValueError("No valid temperature data found")
+        else:
+            raise ValueError("No valid temperature data found")
+
+    @classmethod
+    def calculate_average_temp(cls, weather_data: List[WeatherDay]):
+        total_temp = 0.0
+        num_days = len(weather_data)
+
+        for day in weather_data:
+            average_temp = (day.temp_max + day.temp_min) / 2
+            total_temp += average_temp
+
+        if num_days > 0:
+            average_temp = total_temp / num_days
+            return average_temp
+        else:
+            return 0.0
+
+    @classmethod
+    def check_if_raining(cls, weather_data: List[WeatherDay]) -> bool:
+        for day in weather_data:
+            if day.precip_prob > 30:
+                return True
+        return False
+
+    @classmethod
+    def get_user_feeling(cls, users_residence_average_temp: float,
+                         average_temp_of_trip: float) -> UserWeatherFeelingOptions:
+        if users_residence_average_temp < average_temp_of_trip - 10:
+            return UserWeatherFeelingOptions.COLD
+
+        elif users_residence_average_temp > average_temp_of_trip + 5:
+            return UserWeatherFeelingOptions.HOT
+
+        else:
+            return UserWeatherFeelingOptions.NORMAL

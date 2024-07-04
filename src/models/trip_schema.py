@@ -1,10 +1,10 @@
-from datetime import datetime
 from typing import Optional, Self
 
 from src.models import BaseModel, ConfigDict, model_validator
 from src.models.city import City
 
 from src.exceptions.input_error import InputError
+from src.utils.date_validator import DateValidator
 
 
 class TripSchema(BaseModel):
@@ -30,16 +30,10 @@ class TripSchema(BaseModel):
     @model_validator(mode='after')
     def check_valid_dates(self) -> Self:
         if self.departure_date and self.return_date:
-            date1 = self.parse_date(self.departure_date)
-            date2 = self.parse_date(self.return_date)
+            date1 = DateValidator.parse_date(self.departure_date)
+            date2 = DateValidator.parse_date(self.return_date)
             if date1 > date2:
                 raise InputError("Return date is before departure date")
             return self
         return self
 
-    @classmethod
-    def parse_date(cls, value):
-        try:
-            return datetime.strptime(value, "%Y-%m-%d")
-        except ValueError:
-            raise ValueError("Invalid date format. Expected format: YYYY-MM-DD")

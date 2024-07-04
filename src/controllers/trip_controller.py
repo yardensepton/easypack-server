@@ -9,6 +9,7 @@ from src.models.trip_info import TripInfo
 from src.models.trip_schema import TripSchema
 from src.exceptions.input_error import InputError
 from src.services.trip_service import TripService
+from src.utils.date_validator import DateValidator
 
 
 class TripController:
@@ -118,16 +119,16 @@ class TripController:
         if trips is None:
             return True
 
-        trip_start = self.parse_date(departure_date)
-        trip_end = self.parse_date(return_date)
+        trip_start = DateValidator.parse_date(departure_date)
+        trip_end = DateValidator.parse_date(return_date)
 
         # Retrieve all trips associated with the user from the database
 
         # Iterate through the list of trips
         for trip in trips:
             if trip_id is None or str(trip.id) != trip_id:
-                current_trip_start = self.parse_date(trip.departure_date)
-                current_trip_end = self.parse_date(trip.return_date)
+                current_trip_start = DateValidator.parse_date(trip.departure_date)
+                current_trip_end = DateValidator.parse_date(trip.return_date)
 
                 # Check if the trip falls within the specified date range
                 if trip_start <= current_trip_start <= trip_end or trip_start <= current_trip_end <= trip_end:
@@ -136,17 +137,17 @@ class TripController:
         # No trip found within the date range
         return True
 
-    def parse_date(self, date_str: str) -> datetime:
-        try:
-            return datetime.strptime(date_str, "%Y-%m-%d")
-        except ValueError as ve:
-            raise ValueError(f"invalid date: {ve}")
+    # def parse_date(self, date_str: str) -> datetime:
+    #     try:
+    #         return datetime.strptime(date_str, "%Y-%m-%d")
+    #     except ValueError as ve:
+    #         raise ValueError(f"invalid date: {ve}")
 
     def are_dates_valid(self, departure_date: str, return_date: str) -> bool:
         # check if the return date is before the departure date
         if departure_date and return_date:
-            date1 = self.parse_date(departure_date)
-            date2 = self.parse_date(return_date)
+            date1 = DateValidator.parse_date(departure_date)
+            date2 = DateValidator.parse_date(return_date)
             if date1 > date2:
                 raise InputError("Return date is before departure date")
         return True
