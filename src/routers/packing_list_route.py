@@ -7,7 +7,6 @@ from starlette.responses import JSONResponse
 from src.controllers.packing_list_controller import PackingListController
 from src.controllers.trip_controller import TripController
 from src.models.packing_list_entity import PackingListEntity
-from src.models.packing_list_boundary import PackingListBoundary
 from src.models.packing_list_update import PackingListUpdate
 from src.models.trip_entity import TripEntity
 from src.models.user_entity import UserEntity

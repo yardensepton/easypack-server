@@ -1,11 +1,4 @@
-import asyncio
 from typing import List
-
-from bson import json_util
-import json
-from pymongo.errors import PyMongoError
-from starlette.websockets import WebSocket, WebSocketDisconnect
-from watchfiles import Change
 
 from src.models.trip_entity import TripEntity
 from src.models.trip_schema import TripSchema

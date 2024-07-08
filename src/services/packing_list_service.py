@@ -31,29 +31,30 @@ class PackingListService:
     def create_packing_list(self, trip: TripEntity, user: UserEntity, lat_lon: dict) -> PackingListEntity:
         if self.get_packing_list_by_trip_id(trip_id=trip.id):
             raise AlreadyExistsError(obj_name="packing list to trip", obj_id=trip.id)
-        items: List[ItemForTrip] = self.build_packing_list(trip=trip, user=user, lat_lon=lat_lon)
+        items: List[ItemForTrip] = self.get_items_for_packing_list(trip=trip, user=user, lat_lon=lat_lon)
         packing_list_entity: PackingListEntity = PackingListEntity(trip_id=trip.id, items=items)
         return self.db_handler.insert_one(packing_list_entity)
 
-    def build_packing_list(self, trip: TripEntity, user: UserEntity, lat_lon: dict) -> List[ItemForTrip]:
+    def get_items_for_packing_list(self, trip: TripEntity, user: UserEntity, lat_lon: dict) -> List[ItemForTrip]:
         start_date: datetime = DateValidator.parse_date(trip.departure_date)
         end_date: datetime = DateValidator.parse_date(trip.return_date)
         trip_days: int = (end_date - start_date).days
         trip_days = trip_days if trip_days > 0 else 1
 
         average_temp_of_trip = self.weather_controller.calculate_average_temp(trip.weather_data)
-        users_residence_average_temp: float = self.weather_controller.get_average_weather(
-            lat_lon=lat_lon, start_date=start_date, end_date=end_date)
+        users_feeling = self.weather_controller.get_user_feeling(average_temp_of_trip=average_temp_of_trip,
+                                                                 lat_lon=lat_lon,
+                                                                 start_date=start_date, end_date=end_date)
 
-        print(users_residence_average_temp)
-        print(self.weather_controller.get_user_feeling(users_residence_average_temp, average_temp_of_trip))
+        print(average_temp_of_trip)
+        print(users_feeling)
 
         all_items: Set[Item] = set()
         packing_list_items: List[ItemForTrip] = []
         # firstly add the basic items based on the user's gender
 
         basic_items: List[Item] = self.items_controller.filter_items_by(default=True, user_gender=user.gender,
-                                                                        user_trip_average_temp=average_temp_of_trip, )
+                                                                        user_trip_average_temp=average_temp_of_trip)
         all_items.update(basic_items)
 
         # check if it's supposed to rain

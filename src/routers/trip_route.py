@@ -3,12 +3,10 @@ from typing import List, Optional, Union
 from fastapi import APIRouter, Query, HTTPException, Depends
 from starlette import status
 from starlette.responses import JSONResponse
-from starlette.websockets import WebSocket, WebSocketDisconnect
 
 from src.controllers import UserController
 from src.controllers.packing_list_controller import PackingListController
 from src.controllers.trip_controller import TripController
-from src.enums.timeline_options import TimelineOptions
 from src.models.trip_boundary import TripBoundary
 from src.models.trip_entity import TripEntity
 from src.models.trip_info import TripInfo
@@ -29,7 +27,6 @@ router = APIRouter(
 trip_controller = TripController()
 packing_list_controller = PackingListController()
 user_controller = UserController()
-active_websockets: List[WebSocket] = []
 
 
 @router.post("", response_model=TripEntity)
@@ -43,8 +40,6 @@ async def create_trip(trip: TripBoundary, identity: UserEntity = Depends(get_cur
                                                            trip_entity.return_date)
         trip_entity.weather_data = weather_data
         trip_entity_in_db: TripEntity = trip_controller.create_trip(trip_entity)
-
-        await notify_trip_update({"event": "new_trip"})
 
         return JSONResponse(status_code=status.HTTP_200_OK, content=trip_entity_in_db.dict())
 
@@ -85,52 +80,19 @@ async def get_trips_by_user_id(user_id: str, identity: UserEntity):
     return JSONResponse(status_code=status.HTTP_200_OK, content=[trip.dict() for trip in trips])
 
 
-async def notify_trip_update(message: dict):
-    print("len(active_websockets)")
-    print(len(active_websockets))
-    print("i am sending message")
-    for websocket in active_websockets:
-        try:
-            print("ok i am sending")
-            await websocket.send_json(message)
-            # await websocket.receive()
-
-        except Exception as e:
-            print(f"Error sending message to WebSocket: {e}")
-
-
-@router.websocket("/ws/trip_updates")
-async def trip_updates_ws(websocket: WebSocket):
-    await websocket.accept()
-    if not active_websockets.__contains__(websocket):
-        active_websockets.append(websocket)
-
-    try:
-        while True:
-            data = await websocket.receive_text()
-            for client in active_websockets:
-                print(f"Message text was: {data}")
-    except Exception as e:
-        print(f"WebSocket connection error: {e}")
-
-    finally:
-        active_websockets.remove(websocket)
-
-
 @router.get("/sorted", response_model=Union[TripInfo, Optional[List[TripInfo]]])
-async def get_sorted_trips_info_by_current_user(identity: UserEntity = Depends(get_current_access_identity),
-                                                timeline: TimelineOptions = Query(TimelineOptions.FUTURE)):
+async def get_sorted_trips_info_by_current_user(identity: UserEntity = Depends(get_current_access_identity)):
     user_controller.get_user_by_id(identity.id)
-    trips: List[TripInfo] = trip_controller.get_sorted_trips_info(identity.id, timeline)
-    print(f"trips len is {len(trips)} for {timeline} ")
+    trips: List[TripInfo] = trip_controller.get_sorted_trips_info(identity.id)
+    print(f"trips len is {len(trips)} ")
     return JSONResponse(status_code=status.HTTP_200_OK, content=[trip.dict() for trip in trips])
 
 
 @router.get("/upcoming-trip", response_model=TripEntity)
 async def get_users_upcoming_trip(identity: UserEntity = Depends(get_current_access_identity),
-                                  timeline: TimelineOptions = Query(TimelineOptions.FUTURE)):
+                                  ):
     user_controller.get_user_by_id(identity.id)
-    upcoming_trip: TripEntity = trip_controller.get_users_upcoming_trip(identity.id, timeline)
+    upcoming_trip: TripEntity = trip_controller.get_users_upcoming_trip(identity.id)
     if upcoming_trip is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No trips found for this user")
     return JSONResponse(status_code=status.HTTP_200_OK, content=upcoming_trip.dict())
@@ -142,7 +104,6 @@ async def delete_trip_by_id(trip_id: str, identity: UserEntity = Depends(get_cur
     packing_list_controller.get_packing_list_by_trip_id(trip_id)
     packing_list_controller.delete_packing_list_by_trip_id(trip_id)
     trip_controller.delete_trip_by_id(trip_id)
-    await notify_trip_update({"event": "trip_deleted"})
     return JSONResponse(status_code=status.HTTP_200_OK, content=f"Trip {trip_id} deleted")
 
 

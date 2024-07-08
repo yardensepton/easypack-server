@@ -1,8 +1,7 @@
-from datetime import datetime, date
+from datetime import datetime
 from typing import List
 
 from src.controllers.packing_list_controller import PackingListController
-from src.enums.timeline_options import TimelineOptions
 from src.models.city import City
 from src.models.trip_entity import TripEntity
 from src.models.trip_info import TripInfo
@@ -27,32 +26,27 @@ class TripController:
     def get_trips_by_user_id(self, user_id: str) -> List[TripEntity]:
         return self.trip_service.get_trips_by_user_id(user_id=user_id)
 
-    def sort_users_trips(self, user_id: str, timeline: TimelineOptions) -> List[TripEntity]:
+    def sort_users_trips(self, user_id: str) -> List[TripEntity]:
         trips: List[TripEntity] = self.trip_service.get_trips_by_user_id(user_id=user_id)
 
         # Parse the departure_date strings into datetime.date objects
         for trip in trips:
             trip.departure_date = datetime.strptime(trip.departure_date, "%Y-%m-%d").date()
 
-        past_or_future_trips: List[TripEntity] = []
         # Filter trips to only include those from today onward
-        today = datetime.now().date()
-        if timeline == TimelineOptions.PAST:
-            past_or_future_trips = [trip for trip in trips if trip.departure_date < today]
-        if timeline == TimelineOptions.FUTURE:
-            past_or_future_trips = [trip for trip in trips if trip.departure_date >= today]
+        sorted_trips: List[TripEntity] = [trip for trip in trips]
 
         # Sort the list by departure_date
-        past_or_future_trips.sort(key=lambda trip: trip.departure_date)
+        sorted_trips.sort(key=lambda trip: trip.departure_date)
 
         # Convert the datetime.date objects back to strings for return
-        for trip in past_or_future_trips:
+        for trip in sorted_trips:
             trip.departure_date = trip.departure_date.strftime("%Y-%m-%d")
 
-        return past_or_future_trips
+        return sorted_trips
 
-    def get_sorted_trips_info(self, user_id: str, timeline: TimelineOptions) -> List[TripInfo]:
-        trips: List[TripEntity] = self.sort_users_trips(user_id=user_id, timeline=timeline)
+    def get_sorted_trips_info(self, user_id: str) -> List[TripInfo]:
+        trips: List[TripEntity] = self.sort_users_trips(user_id=user_id)
 
         trip_info_list: List[TripInfo] = []
         for trip in trips:
@@ -63,8 +57,8 @@ class TripController:
                          destination=destination_name, city_url=destination.city_url))
         return trip_info_list
 
-    def get_users_upcoming_trip(self, user_id: str, timeline: TimelineOptions) -> TripEntity:
-        trips: List[TripEntity] = self.sort_users_trips(user_id=user_id, timeline=timeline)
+    def get_users_upcoming_trip(self, user_id: str) -> TripEntity:
+        trips: List[TripEntity] = self.sort_users_trips(user_id=user_id)
         return trips[0] if trips else None
 
     def delete_trip_by_id(self, trip_id: str):
@@ -106,7 +100,7 @@ class TripController:
 
     def check_departure_and_return_inputs(self, user_id: str, departure_date: str, return_date: str, trip_id: str,
                                           new_info: TripSchema) -> TripEntity:
-        if self.are_dates_valid(departure_date, return_date) and self.availability_within_date_range(
+        if DateValidator.are_dates_valid(departure_date, return_date) and self.availability_within_date_range(
                 user_id, departure_date, return_date, trip_id):
             return self.trip_service.update_trip_by_id(trip_id=trip_id, new_info=new_info)
 
@@ -137,17 +131,11 @@ class TripController:
         # No trip found within the date range
         return True
 
-    # def parse_date(self, date_str: str) -> datetime:
-    #     try:
-    #         return datetime.strptime(date_str, "%Y-%m-%d")
-    #     except ValueError as ve:
-    #         raise ValueError(f"invalid date: {ve}")
-
-    def are_dates_valid(self, departure_date: str, return_date: str) -> bool:
-        # check if the return date is before the departure date
-        if departure_date and return_date:
-            date1 = DateValidator.parse_date(departure_date)
-            date2 = DateValidator.parse_date(return_date)
-            if date1 > date2:
-                raise InputError("Return date is before departure date")
-        return True
+    # def are_dates_valid(self, departure_date: str, return_date: str) -> bool:
+    #     # check if the return date is before the departure date
+    #     if departure_date and return_date:
+    #         date1 = DateValidator.parse_date(departure_date)
+    #         date2 = DateValidator.parse_date(return_date)
+    #         if date1 > date2:
+    #             raise InputError("Return date is before departure date")
+    #     return True

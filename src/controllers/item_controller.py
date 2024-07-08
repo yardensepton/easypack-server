@@ -1,3 +1,4 @@
+import math
 from typing import List, Optional, Any, Coroutine
 
 from src.models.calculation import Calculation
@@ -27,7 +28,7 @@ class ItemController:
             item_for_trip = ItemForTrip(item_name=item.name, category=item.category,
                                         amount_per_trip=1)
             return item_for_trip
-        amount_per_trip: int = int(amount * trip_days)
+        amount_per_trip = math.ceil(amount * trip_days)
         item_for_trip = ItemForTrip(item_name=item.name, category=item.category,
                                     amount_per_trip=amount_per_trip)
         return item_for_trip

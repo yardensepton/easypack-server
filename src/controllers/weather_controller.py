@@ -26,7 +26,7 @@ class WeatherController:
         return weather_objects
 
     @classmethod
-    def get_average_weather(cls, start_date: datetime, end_date: datetime, lat_lon: dict) -> float:
+    def get_average_temp_in_user_residence(cls, start_date: datetime, end_date: datetime, lat_lon: dict) -> float:
         if not lat_lon:
             raise ValueError("Latitude and longitude must be provided")
 
@@ -59,7 +59,7 @@ class WeatherController:
             raise ValueError("No valid temperature data found")
 
     @classmethod
-    def calculate_average_temp(cls, weather_data: List[WeatherDay]):
+    def calculate_average_temp(cls, weather_data: List[WeatherDay]) -> float:
         total_temp = 0.0
         num_days = len(weather_data)
 
@@ -81,8 +81,10 @@ class WeatherController:
         return False
 
     @classmethod
-    def get_user_feeling(cls, users_residence_average_temp: float,
-                         average_temp_of_trip: float) -> UserWeatherFeelingOptions:
+    def get_user_feeling(cls, average_temp_of_trip: float, start_date: datetime, end_date: datetime,
+                         lat_lon: dict) -> UserWeatherFeelingOptions:
+        users_residence_average_temp: float = cls.get_average_temp_in_user_residence(start_date=start_date,
+                                                                                     end_date=end_date, lat_lon=lat_lon)
         if users_residence_average_temp < average_temp_of_trip - 10:
             return UserWeatherFeelingOptions.COLD
 
