@@ -66,7 +66,8 @@ async def delete_packing_list_by_id(trip_id: str, list_id: str,
 
 @router.put("/{trip_id}/{list_id}", response_model=PackingListEntity)
 @user_trip_access_or_abort
-def update_packing_list_by_id(new_info: List[PackingListUpdate], list_id: str,
-                              identity: UserEntity = Depends(get_current_access_identity)):
-    updated_packing_list: PackingListEntity = list_controller.update_packing_list_by_id(new_info, list_id)
+async def update_packing_list_by_id(new_info: List[PackingListUpdate], list_id: str, trip_id: str,
+                                    identity: UserEntity = Depends(get_current_access_identity)):
+    print(list_id)
+    updated_packing_list: PackingListEntity = await list_controller.update_packing_list_by_id(new_info, list_id)
     return JSONResponse(status_code=status.HTTP_200_OK, content=updated_packing_list.dict())

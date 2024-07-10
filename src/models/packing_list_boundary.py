@@ -1,6 +1,5 @@
 from src.models import BaseModel, ConfigDict, List
 
-from src.models.item_and_calculation import ItemAndCalculation
 from src.models.item_for_trip import ItemForTrip
 
 

@@ -1,6 +1,8 @@
 from datetime import datetime
 from typing import List, Set
 
+from pymongo.errors import DuplicateKeyError
+
 from src.controllers.item_controller import ItemController
 from src.controllers.weather_controller import WeatherController
 from src.models.item import Item
@@ -19,6 +21,7 @@ from src.utils.date_validator import DateValidator
 class PackingListService:
     def __init__(self):
         self.db_handler = PackingListsDB(db, "LISTS")
+        self.db_handler.create_index()
         self.items_controller = ItemController()
         self.weather_controller = WeatherController()
 
@@ -105,18 +108,21 @@ class PackingListService:
     def get_all_packing_lists(self) -> List[PackingListEntity]:
         return self.db_handler.find_all()
 
-    def add_item(self, list_id: str, details: ItemAndCalculation):
+    async def add_item(self, list_id: str, details: ItemForTrip):
         new_info_dict = details.model_dump(by_alias=True, exclude_unset=True)
         self.db_handler.add(new_info=new_info_dict, new_info_name="items",
                             value=list_id)
 
-    def update_item(self, list_id: str, details: ItemAndCalculation):
+    async def update_item(self, list_id: str, details: ItemForTrip):
         new_info_dict = details.model_dump(by_alias=True, exclude_unset=True)
-        self.db_handler.update_specific_field(outer_value=list_id, inner_value=details.name, inner_value_name="name",
+        print(new_info_dict)
+        self.db_handler.update_specific_field(outer_value=list_id, inner_value=details.item_name,
+                                              inner_value_name="item_name",
                                               outer_value_name="items",
                                               update_fields=new_info_dict)
 
-    def remove_item(self, list_id: str, item_name: str):
+    async def remove_item(self, list_id: str, item_name: str):
+        print("inside func")
         # logging.debug(f"Removing item with id {item_id} from list {list_id}")
-        self.db_handler.remove_specific_field(outer_value_name="items", inner_value_name="name",
+        self.db_handler.remove_specific_field(outer_value_name="items", inner_value_name="item_name",
                                               outer_value=list_id, inner_value=item_name)

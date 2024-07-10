@@ -31,14 +31,18 @@ class PackingListController:
     def delete_packing_list_by_trip_id(self, trip_id: str):
         return self.packing_list_service.delete_packing_list_by_trip_id(trip_id=trip_id)
 
-    def update_packing_list_by_id(self, new_info: List[PackingListUpdate], list_id) -> PackingListEntity:
+    async def update_packing_list_by_id(self, new_info: List[PackingListUpdate], list_id) -> PackingListEntity:
+        print(new_info)
         for update in new_info:
+            print(update.details.item_name)
             if update.operation == Operation.update:
-                self.packing_list_service.update_item(list_id, update.details)
+                print("in update")
+                await self.packing_list_service.update_item(list_id, update.details)
             elif update.operation == Operation.remove:
-                self.packing_list_service.remove_item(list_id, update.details.name)
+                print("in remove")
+                await self.packing_list_service.remove_item(list_id, update.details.item_name)
             elif update.operation == Operation.add:
-                self.packing_list_service.add_item(list_id=list_id, details=update.details)
+                await self.packing_list_service.add_item(list_id=list_id, details=update.details)
         return self.packing_list_service.get_packing_list_by_id(list_id)
 
     def get_all_packing_lists(self) -> List[PackingListEntity]:

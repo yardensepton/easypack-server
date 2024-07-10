@@ -4,6 +4,7 @@ from pymongo.collection import Collection, ReturnDocument
 from pymongo.database import Database
 from typing import List, Dict, Optional
 from bson import ObjectId
+from pymongo.errors import DuplicateKeyError
 
 from src.repositories.db_handler_base import DBHandlerBase
 from src.repositories import T
@@ -63,7 +64,7 @@ class DBHandler(DBHandlerBase):
     def add(self, new_info_name: str, new_info: Dict, value: str) -> Optional[T]:
         updated: Dict = self.collection.find_one_and_update(
             {"_id": ObjectId(value)},
-            {"$push": {new_info_name: new_info}},
+            {"$addToSet": {new_info_name: new_info}},
             return_document=ReturnDocument.AFTER
         )
         # Initialize the updated object if found
@@ -75,8 +76,9 @@ class DBHandler(DBHandlerBase):
     def update_specific_field(self, outer_value: str, inner_value: str, outer_value_name: str, inner_value_name: str,
                               update_fields: Dict) -> Optional[T]:
         # logging.debug(f"Updating item {item_id} in document with {key}: {value}")
+        object_id = self.add_object_id("_id", outer_value)
         updated_obj: Dict = self.collection.find_one_and_update(
-            {"_id": ObjectId(outer_value), f"{outer_value_name}.{inner_value_name}": inner_value},
+            {"_id": object_id, f"{outer_value_name}.{inner_value_name}": inner_value},
             {"$set": {f"{outer_value_name}.$.{k}": v for k, v in update_fields.items()}},
             return_document=ReturnDocument.AFTER
         )
@@ -88,13 +90,15 @@ class DBHandler(DBHandlerBase):
     def remove_specific_field(self, outer_value: str, outer_value_name: str, inner_value: str, inner_value_name: str) -> \
             Optional[Dict]:
         # logging.debug(f"Removing item {item_id} from document with {key}: {value}")
-        query = {"_id": ObjectId(outer_value)}
+        object_id = self.add_object_id("_id", outer_value)
+        query = {"_id": object_id}
         update = {"$pull": {outer_value_name: {inner_value_name: inner_value}}}
         updated_obj: Dict = self.collection.find_one_and_update(
             query,
             update,
             return_document=ReturnDocument.AFTER
         )
+        print(updated_obj)
         # logging.debug(f"Updated object after removal: {updated_obj}")
         if updated_obj is not None:
             return self.init(updated_obj)
