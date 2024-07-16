@@ -9,7 +9,7 @@ from db import db
 from src.models.auth_info import AuthInfo
 from src.models.user_boundary import UserBoundary
 from src.models.user_entity import UserEntity
-from src.models.user_schema import UserSchema
+from src.models.user_update import UserUpdate
 from src.exceptions.already_exists_error import AlreadyExistsError
 from src.exceptions.authorization_error import AuthorizationError
 from src.exceptions.not_found_error import NotFoundError
@@ -53,7 +53,7 @@ class UserService:
         if user is not None:
             self.db_handler.delete_one("_id", user_id)
 
-    def update_user_by_id(self, new_info: UserSchema, user_id: str) -> UserEntity:
+    def update_user_by_id(self, new_info: UserUpdate, user_id: str) -> UserEntity:
         # adding the input values to a dict if they are not null
         new_info_dict: Dict = {
             k: v for k, v in new_info.model_dump(by_alias=True).items() if v is not None

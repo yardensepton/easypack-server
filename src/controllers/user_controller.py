@@ -5,7 +5,7 @@ from src.controllers.city_controller import CityController
 from src.models.auth_info import AuthInfo
 from src.models.user_boundary import UserBoundary
 from src.models.user_entity import UserEntity
-from src.models.user_schema import UserSchema
+from src.models.user_update import UserUpdate
 from src.services.user_service import UserService
 
 
@@ -29,7 +29,7 @@ class UserController:
     def delete_user_by_id(self, user_id: str):
         self.user_service.delete_user_by_id(user_id)
 
-    def update_user_by_id(self, new_info: UserSchema, user_id: str) -> UserEntity:
+    def update_user_by_id(self, new_info: UserUpdate, user_id: str) -> UserEntity:
         return self.user_service.update_user_by_id(new_info, user_id)
 
     def authenticate_user_or_abort(self, user_model: AuthInfo) -> UserEntity:

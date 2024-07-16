@@ -1,7 +1,7 @@
 from typing import List
 
 from src.models.trip_entity import TripEntity
-from src.models.trip_schema import TripSchema
+from src.models.trip_update import TripUpdate
 from src.exceptions.not_found_error import NotFoundError
 from db import db
 from src.repositories.trips_db import TripsDB
@@ -34,7 +34,7 @@ class TripService:
         if trip is not None:
             self.db_handler.delete_one("_id", trip_id)
 
-    def update_trip_by_id(self, new_info: TripSchema, trip_id: str) -> TripEntity:
+    def update_trip_by_id(self, new_info: TripUpdate, trip_id: str) -> TripEntity:
         # adding the input values to a dict if they are not null
         new_info_dict = {
             k: v for k, v in new_info.model_dump(by_alias=True).items() if v is not None

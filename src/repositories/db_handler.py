@@ -65,6 +65,7 @@ class DBHandler(DBHandlerBase):
         updated: Dict = self.collection.find_one_and_update(
             {"_id": ObjectId(value)},
             {"$addToSet": {new_info_name: new_info}},
+            upsert=True,
             return_document=ReturnDocument.AFTER
         )
         # Initialize the updated object if found
@@ -80,6 +81,7 @@ class DBHandler(DBHandlerBase):
         updated_obj: Dict = self.collection.find_one_and_update(
             {"_id": object_id, f"{outer_value_name}.{inner_value_name}": inner_value},
             {"$set": {f"{outer_value_name}.$.{k}": v for k, v in update_fields.items()}},
+            upsert=True,
             return_document=ReturnDocument.AFTER
         )
         # logging.debug(f"Updated object: {updated_obj}")

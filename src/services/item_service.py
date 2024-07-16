@@ -16,6 +16,7 @@ class ItemService:
 
     def get_all_items_by_category(self, category: str) -> List[Item]:
         items = self.db_handler.find({"category": category})
+        print(items)
         if items:
             return items
         raise NotFoundError(obj_name="items by category", obj_id=category)
@@ -24,8 +25,6 @@ class ItemService:
                         user_trip_average_temp: Optional[float] = None,
                         user_gender: Optional[str] = None) -> List[Item]:
         query = {}
-
-        print(category, default, user_trip_average_temp, user_gender)
         if category:
             query["category"] = category
         if user_trip_average_temp:

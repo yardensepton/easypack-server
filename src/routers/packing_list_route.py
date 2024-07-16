@@ -19,17 +19,19 @@ router = APIRouter(
     tags=["PACKING_LISTS"]
 )
 
-list_controller = PackingListController()
+packing_list_controller = PackingListController()
 trip_controller = TripController()
 
 
 @router.post("/{trip_id}", response_model=PackingListEntity)
 @user_trip_access_or_abort
-async def create_packing_list(trip_id: str, identity: UserEntity = Depends(get_current_access_identity)):
+async def create_packing_list(trip_id: str, preferences: Optional[List[str]] = None,
+                              identity: UserEntity = Depends(get_current_access_identity)):
     trip: TripEntity = trip_controller.get_trip_by_id(trip_id)
     lat_lon: dict = await get_lat_lon(trip.destination.text)
-    pack_list: PackingListEntity = list_controller.create_packing_list(trip=trip,
-                                                                       user=identity, lat_lon=lat_lon)
+    pack_list: PackingListEntity = packing_list_controller.create_packing_list(trip=trip,
+                                                                               user=identity, lat_lon=lat_lon,
+                                                                               preferences=preferences)
     return JSONResponse(status_code=status.HTTP_200_OK, content=pack_list.dict())
 
 
@@ -38,18 +40,18 @@ async def get(trip_id: Optional[str] = Query(None, description="Trip ID"),
               list_id: Optional[str] = Query(None, description="List ID"),
               identity: UserEntity = Depends(get_current_access_identity)):
     if list_id is not None:
-        packing_list: PackingListEntity = list_controller.get_packing_list_by_id(list_id)
+        packing_list: PackingListEntity = packing_list_controller.get_packing_list_by_id(list_id)
         return JSONResponse(status_code=status.HTTP_200_OK, content=packing_list.dict())
 
     elif trip_id is not None:
         trip_controller.get_trip_by_id(trip_id)
-        packing_list: PackingListEntity = list_controller.get_packing_list_by_trip_id(trip_id)
+        packing_list: PackingListEntity = packing_list_controller.get_packing_list_by_trip_id(trip_id)
         if packing_list is None:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                                 detail=f"Trip {trip_id} doesn't have a packing list")
         return JSONResponse(status_code=status.HTTP_200_OK, content=packing_list.dict())
     else:
-        packing_lists: List[PackingListEntity] = list_controller.get_all_packing_lists()
+        packing_lists: List[PackingListEntity] = packing_list_controller.get_all_packing_lists()
         if len(packing_lists) == 0:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="There are no packing lists in the DB")
         return JSONResponse(status_code=status.HTTP_200_OK,
@@ -60,7 +62,7 @@ async def get(trip_id: Optional[str] = Query(None, description="Trip ID"),
 @user_trip_access_or_abort
 async def delete_packing_list_by_id(trip_id: str, list_id: str,
                                     identity: UserEntity = Depends(get_current_access_identity)):
-    list_controller.delete_packing_list_by_id(list_id)
+    packing_list_controller.delete_packing_list_by_id(list_id)
     return JSONResponse(status_code=status.HTTP_200_OK, content=f"Packing list {list_id} deleted")
 
 
@@ -69,5 +71,5 @@ async def delete_packing_list_by_id(trip_id: str, list_id: str,
 async def update_packing_list_by_id(new_info: List[PackingListUpdate], list_id: str, trip_id: str,
                                     identity: UserEntity = Depends(get_current_access_identity)):
     print(list_id)
-    updated_packing_list: PackingListEntity = await list_controller.update_packing_list_by_id(new_info, list_id)
+    updated_packing_list: PackingListEntity = await packing_list_controller.update_packing_list_by_id(new_info, list_id)
     return JSONResponse(status_code=status.HTTP_200_OK, content=updated_packing_list.dict())

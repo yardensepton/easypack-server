@@ -10,7 +10,7 @@ from src.controllers.trip_controller import TripController
 from src.models.trip_boundary import TripBoundary
 from src.models.trip_entity import TripEntity
 from src.models.trip_info import TripInfo
-from src.models.trip_schema import TripSchema
+from src.models.trip_update import TripUpdate
 from src.models.user_entity import UserEntity
 from src.enums.role_options import RoleOptions
 from src.models.weather import WeatherDay
@@ -109,7 +109,7 @@ async def delete_trip_by_id(trip_id: str, identity: UserEntity = Depends(get_cur
 
 @router.put("/{trip_id}", response_model=TripEntity)
 @user_trip_access_or_abort
-async def update_trip_by_id(new_info: TripSchema, trip_id: str,
+async def update_trip_by_id(new_info: TripUpdate, trip_id: str,
                             identity: UserEntity = Depends(get_current_access_identity)):
     updated_trip: TripEntity = trip_controller.update_trip_by_id(new_info, trip_id)
     return JSONResponse(status_code=status.HTTP_200_OK, content=updated_trip.dict())

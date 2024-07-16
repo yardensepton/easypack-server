@@ -1,7 +1,6 @@
 from typing import List
 
 from src.models.city import City
-import pycountry
 
 
 class CityController:

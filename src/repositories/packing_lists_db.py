@@ -9,6 +9,4 @@ class PackingListsDB(DBHandler):
     def init(self, data: dict) -> PackingListEntity:
         return PackingListEntity(**data)
 
-    def create_index(self):
-        self.collection.create_indexes([IndexModel([("items.item_name", ASCENDING)], unique=True)])
 

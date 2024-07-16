@@ -1,12 +1,16 @@
 import typing
 
+from pydantic import BaseModel
+
 from src.models import Field, PyObjectId, ConfigDict
-from src.models.packing_list_boundary import PackingListBoundary
+from src.models.item_for_trip import ItemForTrip
+from typing import List
 
 
-class PackingListEntity(PackingListBoundary):
+class PackingListEntity(BaseModel):
     id: typing.Optional[PyObjectId] = Field(alias="_id", default=None)
     trip_id: str
+    items: List[ItemForTrip]
     model_config = ConfigDict(
         populate_by_name=True,
         arbitrary_types_allowed=True,

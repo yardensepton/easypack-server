@@ -12,7 +12,7 @@ from src.controllers.trip_controller import TripController
 from src.email_notifications.notify import send_reset_password_mail
 from src.models.auth_info import AuthInfo
 from src.models.user_boundary import UserBoundary
-from src.models.user_schema import UserSchema
+from src.models.user_update import UserUpdate
 from src.models.user_entity import UserEntity
 
 from src.utils.authantication.current_identity_utils import get_current_access_identity, \
@@ -140,7 +140,7 @@ async def delete_user_by_id(user_id: str, identity: UserEntity = Depends(get_cur
 
 @router.put("/{user_id}", response_model=UserEntity)
 @user_permission_check
-async def update_user_by_id(new_info: UserSchema, user_id: str,
+async def update_user_by_id(new_info: UserUpdate, user_id: str,
                             identity: UserEntity = Depends(get_current_access_identity)):
     updated_user = user_controller.update_user_by_id(new_info, user_id)
     return JSONResponse(status_code=status.HTTP_200_OK, content=updated_user.dict())

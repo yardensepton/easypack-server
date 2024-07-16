@@ -7,7 +7,7 @@ from src.exceptions.input_error import InputError
 from src.utils.date_validator import DateValidator
 
 
-class TripSchema(BaseModel):
+class TripUpdate(BaseModel):
     destination: Optional[City] = None
     departure_date: Optional[str] = None
     return_date: Optional[str] = None

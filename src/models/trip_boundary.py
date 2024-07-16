@@ -1,9 +1,9 @@
 from typing import Optional
 from src.models import ConfigDict
-from src.models.trip_schema import TripSchema
+from src.models.trip_update import TripUpdate
 
 
-class TripBoundary(TripSchema):
+class TripBoundary(TripUpdate):
     user_id: Optional[str] = None
     model_config = ConfigDict(
         populate_by_name=True,

@@ -6,7 +6,7 @@ from src.enums.gender_options import GenderOptions
 from src.exceptions.input_error import InputError
 
 
-class UserSchema(BaseModel):
+class UserUpdate(BaseModel):
     name: Optional[str] = None
     gender: Optional[str] = None
     city: Optional[City] = None

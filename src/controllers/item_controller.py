@@ -37,6 +37,13 @@ class ItemController:
         items_result = self.item_service.get_all_items_by_category(category=category)
         return self.calculation_service.get_category_items_and_calculation(category, items_result)
 
+    def filter_calculations_by(self, category: Optional[str] = None,
+                               activity: Optional[bool] = None) -> list[Calculation]:
+        if category and not self.item_service.exists("category", category):
+            raise InputError("No items found matching the filters.")
+
+        return self.calculation_service.filter_calculation(category=category, activity=activity)
+
     def filter_items_by(self, category: Optional[str] = None, default: Optional[bool] = None,
                         user_trip_average_temp: Optional[float] = None,
                         user_gender: Optional[str] = None) -> list[Item]:

@@ -5,7 +5,7 @@ from src.controllers.packing_list_controller import PackingListController
 from src.models.city import City
 from src.models.trip_entity import TripEntity
 from src.models.trip_info import TripInfo
-from src.models.trip_schema import TripSchema
+from src.models.trip_update import TripUpdate
 from src.exceptions.input_error import InputError
 from src.services.trip_service import TripService
 from src.utils.date_validator import DateValidator
@@ -74,7 +74,7 @@ class TripController:
                     self.packing_list_controller.delete_packing_list_by_trip_id(trip_id)
                     self.delete_trip_by_id(trip_id)
 
-    def update_trip_by_id(self, new_info: TripSchema, trip_id: str) -> TripEntity:
+    def update_trip_by_id(self, new_info: TripUpdate, trip_id: str) -> TripEntity:
         trip_dict = self.get_trip_by_id(trip_id)
         if trip_dict is not None:
             user_id = trip_dict.user_id
@@ -99,7 +99,7 @@ class TripController:
                 return self.trip_service.update_trip_by_id(trip_id=trip_id, new_info=new_info)
 
     def check_departure_and_return_inputs(self, user_id: str, departure_date: str, return_date: str, trip_id: str,
-                                          new_info: TripSchema) -> TripEntity:
+                                          new_info: TripUpdate) -> TripEntity:
         if DateValidator.are_dates_valid(departure_date, return_date) and self.availability_within_date_range(
                 user_id, departure_date, return_date, trip_id):
             return self.trip_service.update_trip_by_id(trip_id=trip_id, new_info=new_info)

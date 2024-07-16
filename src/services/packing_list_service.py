@@ -1,12 +1,9 @@
 from datetime import datetime
-from typing import List, Set
-
-from pymongo.errors import DuplicateKeyError
+from typing import List, Set, Optional
 
 from src.controllers.item_controller import ItemController
 from src.controllers.weather_controller import WeatherController
 from src.models.item import Item
-from src.models.item_and_calculation import ItemAndCalculation
 from src.models.item_for_trip import ItemForTrip
 from src.models.packing_list_entity import PackingListEntity
 from src.exceptions.already_exists_error import AlreadyExistsError
@@ -21,7 +18,6 @@ from src.utils.date_validator import DateValidator
 class PackingListService:
     def __init__(self):
         self.db_handler = PackingListsDB(db, "LISTS")
-        self.db_handler.create_index()
         self.items_controller = ItemController()
         self.weather_controller = WeatherController()
 
@@ -31,14 +27,18 @@ class PackingListService:
             return packing_list
         raise NotFoundError(obj_name="Packing list", obj_id=list_id)
 
-    def create_packing_list(self, trip: TripEntity, user: UserEntity, lat_lon: dict) -> PackingListEntity:
+    def create_packing_list(self, trip: TripEntity, user: UserEntity, lat_lon: dict,
+                            preferences: Optional[List[str]] = None) -> PackingListEntity:
         if self.get_packing_list_by_trip_id(trip_id=trip.id):
             raise AlreadyExistsError(obj_name="packing list to trip", obj_id=trip.id)
-        items: List[ItemForTrip] = self.get_items_for_packing_list(trip=trip, user=user, lat_lon=lat_lon)
+        items: List[ItemForTrip] = self.get_items_for_packing_list(trip=trip, user=user, lat_lon=lat_lon,
+                                                                   preferences=preferences)
+        items.sort(key=lambda x: (x.category, x.item_name))
         packing_list_entity: PackingListEntity = PackingListEntity(trip_id=trip.id, items=items)
         return self.db_handler.insert_one(packing_list_entity)
 
-    def get_items_for_packing_list(self, trip: TripEntity, user: UserEntity, lat_lon: dict) -> List[ItemForTrip]:
+    def get_items_for_packing_list(self, trip: TripEntity, user: UserEntity, lat_lon: dict,
+                                   preferences: Optional[List[str]] = None, ) -> List[ItemForTrip]:
         start_date: datetime = DateValidator.parse_date(trip.departure_date)
         end_date: datetime = DateValidator.parse_date(trip.return_date)
         trip_days: int = (end_date - start_date).days
@@ -81,6 +81,14 @@ class PackingListService:
                                                                   default=False,
                                                                   category="shoes", user_gender=user.gender)
         all_items.update(shoes)
+
+        if preferences:
+            user_preferences: List[Item] = []
+            for preference in preferences:
+                user_preferences = self.items_controller.filter_items_by(user_trip_average_temp=average_temp_of_trip,
+                                                                         category=preference, user_gender=user.gender)
+            all_items.update(user_preferences)
+
         for item in all_items:
             item_for_trip: ItemForTrip = self.items_controller.get_item_for_trip(
                 item=item,

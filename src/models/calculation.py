@@ -7,3 +7,4 @@ class Calculation(BaseModel):
     id: typing.Optional[PyObjectId] = Field(alias="_id", default=None)
     category: str
     amount_per_day: float
+    activity: bool

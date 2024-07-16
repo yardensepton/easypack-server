@@ -1,6 +1,5 @@
-from typing import List
+from typing import List, Optional
 
-from src.models.packing_list_boundary import PackingListBoundary
 from src.models.packing_list_entity import PackingListEntity
 from src.models.packing_list_update import PackingListUpdate
 from src.enums.operation import Operation
@@ -15,9 +14,10 @@ class PackingListController:
         self.packing_list_service = PackingListService()
 
     def create_packing_list(self, trip: TripEntity,
-                            user: UserEntity, lat_lon: dict) -> PackingListEntity:
+                            user: UserEntity, lat_lon: dict,
+                            preferences: Optional[List[str]] = None) -> PackingListEntity:
         return self.packing_list_service.create_packing_list(trip=trip, user=user,
-                                                             lat_lon=lat_lon)
+                                                             lat_lon=lat_lon, preferences=preferences)
 
     def get_packing_list_by_id(self, list_id: str) -> PackingListEntity:
         return self.packing_list_service.get_packing_list_by_id(list_id=list_id)

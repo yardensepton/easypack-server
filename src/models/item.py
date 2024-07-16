@@ -26,4 +26,4 @@ class Item(BaseModel):
         return False
 
     def __hash__(self):
-        return hash((self.id,self.name, self.category, self.temp_max,self.temp_min, self.gender, self.default))
+        return hash((self.id, self.name, self.category, self.temp_max, self.temp_min, self.gender, self.default))
