@@ -25,13 +25,15 @@ trip_controller = TripController()
 
 @router.post("/{trip_id}", response_model=PackingListEntity)
 @user_trip_access_or_abort
-async def create_packing_list(trip_id: str, preferences: Optional[List[str]] = None,
+async def create_packing_list(trip_id: str, items_preferences: Optional[List[str]] = None,
+                              activities_preferences: Optional[List[str]] = None,
                               identity: UserEntity = Depends(get_current_access_identity)):
     trip: TripEntity = trip_controller.get_trip_by_id(trip_id)
     lat_lon: dict = await get_lat_lon(trip.destination.text)
-    pack_list: PackingListEntity = packing_list_controller.create_packing_list(trip=trip,
-                                                                               user=identity, lat_lon=lat_lon,
-                                                                               preferences=preferences)
+    pack_list: PackingListEntity = await packing_list_controller.create_packing_list(trip=trip,
+                                                                                     user=identity, lat_lon=lat_lon,
+                                                                                     activities_preferences=activities_preferences,
+                                                                                     items_preferences=items_preferences)
     return JSONResponse(status_code=status.HTTP_200_OK, content=pack_list.dict())
 
 

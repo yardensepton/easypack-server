@@ -8,7 +8,7 @@ from src.exceptions.input_error import InputError
 class UserBoundary(UserUpdate):
     email: EmailStr
     password: str
-    role: str
+    role: RoleOptions
     model_config = ConfigDict(
         populate_by_name=True,
         arbitrary_types_allowed=True,
@@ -27,10 +27,3 @@ class UserBoundary(UserUpdate):
                 }, }
         },
     )
-
-    @field_validator('role')
-    @classmethod
-    def is_valid_role(cls, role: str) -> str:
-        if role not in (g.value for g in RoleOptions):
-            raise InputError("Invalid role value")
-        return role

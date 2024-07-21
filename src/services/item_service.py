@@ -43,5 +43,11 @@ class ItemService:
             return items
         raise NotFoundError(obj_name="items", obj_id="")
 
+    def get_item_by_name(self, name: str) -> Item:
+        item = self.db_handler.find_one("name", name)
+        if item:
+            return item
+        raise NotFoundError(obj_name="item", obj_id="")
+
     def exists(self, key: str, value: str | float):
         return self.db_handler.exists(key=key, value=value)

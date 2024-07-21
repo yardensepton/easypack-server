@@ -8,7 +8,7 @@ from src.exceptions.input_error import InputError
 
 class UserUpdate(BaseModel):
     name: Optional[str] = None
-    gender: Optional[str] = None
+    gender: Optional[GenderOptions] = None
     city: Optional[City] = None
     model_config = ConfigDict(
         populate_by_name=True,
@@ -26,11 +26,4 @@ class UserUpdate(BaseModel):
             }
         },
     )
-
-    @field_validator('gender')
-    @classmethod
-    def is_valid_gender(cls, gender: str) -> str:
-        if gender not in (g.value for g in GenderOptions):
-            raise InputError("Invalid gender value")
-        return gender
 

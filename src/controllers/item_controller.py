@@ -56,3 +56,6 @@ class ItemController:
                                                  user_trip_average_temp=user_trip_average_temp,
                                                  user_gender=user_gender,
                                                  default=default)
+
+    def get_item_by_name(self, name: str) -> Item:
+        return self.item_service.get_item_by_name(name)

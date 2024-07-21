@@ -13,11 +13,14 @@ class PackingListController:
     def __init__(self):
         self.packing_list_service = PackingListService()
 
-    def create_packing_list(self, trip: TripEntity,
-                            user: UserEntity, lat_lon: dict,
-                            preferences: Optional[List[str]] = None) -> PackingListEntity:
-        return self.packing_list_service.create_packing_list(trip=trip, user=user,
-                                                             lat_lon=lat_lon, preferences=preferences)
+    async def create_packing_list(self, trip: TripEntity,
+                                  user: UserEntity, lat_lon: dict,
+                                  items_preferences: Optional[List[str]] = None,
+                                  activities_preferences: Optional[List[str]] = None) -> PackingListEntity:
+        return await self.packing_list_service.create_packing_list(trip=trip, user=user,
+                                                                   lat_lon=lat_lon,
+                                                                   activities_preferences=activities_preferences,
+                                                                   items_preferences=items_preferences)
 
     def get_packing_list_by_id(self, list_id: str) -> PackingListEntity:
         return self.packing_list_service.get_packing_list_by_id(list_id=list_id)

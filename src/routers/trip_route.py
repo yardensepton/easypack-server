@@ -88,16 +88,6 @@ async def get_sorted_trips_info_by_current_user(identity: UserEntity = Depends(g
     return JSONResponse(status_code=status.HTTP_200_OK, content=[trip.dict() for trip in trips])
 
 
-@router.get("/upcoming-trip", response_model=TripEntity)
-async def get_users_upcoming_trip(identity: UserEntity = Depends(get_current_access_identity),
-                                  ):
-    user_controller.get_user_by_id(identity.id)
-    upcoming_trip: TripEntity = trip_controller.get_users_upcoming_trip(identity.id)
-    if upcoming_trip is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No trips found for this user")
-    return JSONResponse(status_code=status.HTTP_200_OK, content=upcoming_trip.dict())
-
-
 @router.delete("/{trip_id}", response_model=None)
 @user_trip_access_or_abort
 async def delete_trip_by_id(trip_id: str, identity: UserEntity = Depends(get_current_access_identity)):
