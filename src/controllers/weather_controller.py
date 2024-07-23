@@ -76,7 +76,7 @@ class WeatherController:
     @classmethod
     def check_if_raining(cls, weather_data: List[WeatherDay]) -> bool:
         for day in weather_data:
-            if day.precip_prob > 30:
+            if day.precip_prob > 40:
                 return True
         return False
 
@@ -85,11 +85,11 @@ class WeatherController:
                          lat_lon: dict) -> UserWeatherFeelingOptions:
         users_residence_average_temp: float = cls.get_average_temp_in_user_residence(start_date=start_date,
                                                                                      end_date=end_date, lat_lon=lat_lon)
-        if users_residence_average_temp < average_temp_of_trip - 10:
+        print(f"user residence average {round(users_residence_average_temp)}")
+        print(f"trip temp {round(average_temp_of_trip)}")
+        if round(users_residence_average_temp) >= round(average_temp_of_trip) + 5:
             return UserWeatherFeelingOptions.COLD
-
-        elif users_residence_average_temp > average_temp_of_trip + 5:
+        elif round(users_residence_average_temp) <= round(average_temp_of_trip - 5):
             return UserWeatherFeelingOptions.HOT
-
         else:
             return UserWeatherFeelingOptions.NORMAL

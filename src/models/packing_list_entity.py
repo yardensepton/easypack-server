@@ -2,6 +2,7 @@ import typing
 
 from pydantic import BaseModel
 
+from src.enums.user_weather_feeling_options import UserWeatherFeelingOptions
 from src.models import Field, PyObjectId, ConfigDict
 from src.models.item_for_trip import ItemForTrip
 from typing import List
@@ -11,6 +12,7 @@ class PackingListEntity(BaseModel):
     id: typing.Optional[PyObjectId] = Field(alias="_id", default=None)
     trip_id: str
     items: List[ItemForTrip]
+    description: str
     model_config = ConfigDict(
         populate_by_name=True,
         arbitrary_types_allowed=True,

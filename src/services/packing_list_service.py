@@ -32,19 +32,19 @@ class PackingListService:
                                   activities_preferences: Optional[List[str]] = None) -> PackingListEntity:
         if self.get_packing_list_by_trip_id(trip_id=trip.id):
             raise AlreadyExistsError(obj_name="packing list to trip", obj_id=trip.id)
-        items: List[ItemForTrip] = await self.get_items_for_packing_list(trip=trip, user=user, lat_lon=lat_lon,
-                                                                         items_preferences=items_preferences,
-                                                                         activities_preferences=activities_preferences)
-        items.sort(key=lambda x: (x.category, x.item_name))
-        packing_list_entity: PackingListEntity = PackingListEntity(trip_id=trip.id, items=items)
+        packing_list_entity: PackingListEntity = await self.build_packing_list(trip=trip, user=user,
+                                                                               lat_lon=lat_lon,
+                                                                               items_preferences=items_preferences,
+                                                                               activities_preferences=activities_preferences)
         return self.db_handler.insert_one(packing_list_entity)
 
-    async def get_items_for_packing_list(self, trip: TripEntity, user: UserEntity, lat_lon: dict,
-                                         items_preferences: Optional[List[str]] = None,
-                                         activities_preferences: Optional[List[str]] = None) -> List[ItemForTrip]:
+    async def build_packing_list(self, trip: TripEntity, user: UserEntity, lat_lon: dict,
+                                 items_preferences: Optional[List[str]] = None,
+                                 activities_preferences: Optional[List[str]] = None) -> PackingListEntity:
         start_date: datetime = DateValidator.parse_date(trip.departure_date)
         end_date: datetime = DateValidator.parse_date(trip.return_date)
         trip_days: int = (end_date - start_date).days
+        print(trip_days)
         trip_days = trip_days if trip_days > 0 else 1
 
         average_temp_of_trip = self.weather_controller.calculate_average_temp(trip.weather_data)
@@ -54,6 +54,7 @@ class PackingListService:
 
         print(average_temp_of_trip)
         print(users_feeling)
+        print(users_feeling.value)
 
         all_items: Set[Item] = set()
         packing_list_items: List[ItemForTrip] = []
@@ -90,7 +91,8 @@ class PackingListService:
             for preference in activities_preferences:
                 print(preference)
                 user_preferences: List[Item] = self.items_controller.filter_items_by(category=preference,
-                                                                                     user_gender=user.gender)
+                                                                                     user_gender=user.gender,
+                                                                                     user_trip_average_temp=average_temp_of_trip)
                 all_items.update(user_preferences)
 
         if items_preferences:
@@ -104,8 +106,12 @@ class PackingListService:
                 trip_days=trip_days
             )
             packing_list_items.append(item_for_trip)
+        packing_list_items.sort(key=lambda x: (x.category, x.item_name))
+        packing_list_entity: PackingListEntity = PackingListEntity(trip_id=trip.id, items=packing_list_items,
+                                                                   description=users_feeling.value)
 
-        return packing_list_items
+        print(packing_list_entity)
+        return packing_list_entity
 
     def get_packing_list_by_trip_id(self, trip_id: str) -> PackingListEntity:
         packing_list: PackingListEntity = self.db_handler.find_one("trip_id", trip_id)
