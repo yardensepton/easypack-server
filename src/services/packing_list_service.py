@@ -86,6 +86,12 @@ class PackingListService:
                                                                   category="shoes", user_gender=user.gender)
         all_items.update(shoes)
 
+        jackets: List[Item] = self.items_controller.filter_items_by(user_trip_average_temp=average_temp_of_trip,
+                                                                    default=False,
+                                                                    category="coats and jackets",
+                                                                    user_gender=user.gender)
+        all_items.update(jackets)
+
         if activities_preferences:
             print(activities_preferences)
             for preference in activities_preferences:
@@ -132,6 +138,8 @@ class PackingListService:
         return self.db_handler.find_all()
 
     async def add_item(self, list_id: str, details: ItemForTrip):
+        if self.db_handler.find_one("items.item_name", details.item_name):
+            await self.update_item(list_id=list_id, details=details)
         new_info_dict = details.model_dump(by_alias=True, exclude_unset=True)
         self.db_handler.add(new_info=new_info_dict, new_info_name="items",
                             value=list_id)
@@ -145,7 +153,6 @@ class PackingListService:
                                               update_fields=new_info_dict)
 
     async def remove_item(self, list_id: str, item_name: str):
-        print("inside func")
         # logging.debug(f"Removing item with id {item_id} from list {list_id}")
         self.db_handler.remove_specific_field(outer_value_name="items", inner_value_name="item_name",
                                               outer_value=list_id, inner_value=item_name)

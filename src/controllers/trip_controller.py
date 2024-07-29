@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import List
 
 from src.controllers.packing_list_controller import PackingListController
@@ -57,6 +57,26 @@ class TripController:
                          destination=destination_name, city_url=destination.city_url))
         return trip_info_list
 
+    def get_trips_in_a_week(self, user_id: str) -> List[TripEntity]:
+        trips: List[TripEntity] = self.trip_service.get_trips_by_user_id(user_id=user_id)
+        today = datetime.now().date()
+        one_week_later = today + timedelta(days=7)
+        # Parse the departure_date strings into datetime.date objects and filter trips
+        filtered_trips = []
+        for trip in trips:
+            trip_date = datetime.strptime(trip.departure_date, "%Y-%m-%d").date()
+            if today <= trip_date <= one_week_later:
+                trip.departure_date = trip_date  # Store the date as datetime.date
+                filtered_trips.append(trip)
+
+        # Sort the filtered trips by departure_date
+        filtered_trips.sort(key=lambda trip: trip.departure_date)
+
+        # Convert the datetime.date objects back to strings for return
+        for trip in filtered_trips:
+            trip.departure_date = trip.departure_date.strftime("%Y-%m-%d")
+
+        return filtered_trips
     def get_users_upcoming_trip(self, user_id: str) -> TripEntity:
         trips: List[TripEntity] = self.sort_users_trips(user_id=user_id)
         return trips[0] if trips else None

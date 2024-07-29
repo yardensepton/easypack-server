@@ -3,5 +3,6 @@ from src.repositories.db_handler import DBHandler
 
 
 class UsersDB(DBHandler):
+
     def init(self, data: dict) -> UserEntity:
         return UserEntity(**data)

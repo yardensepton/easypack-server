@@ -103,3 +103,10 @@ async def update_trip_by_id(new_info: TripUpdate, trip_id: str,
                             identity: UserEntity = Depends(get_current_access_identity)):
     updated_trip: TripEntity = trip_controller.update_trip_by_id(new_info, trip_id)
     return JSONResponse(status_code=status.HTTP_200_OK, content=updated_trip.dict())
+
+
+@router.put("scheduled", response_model=TripEntity)
+@user_trip_access_or_abort
+async def update_trips_weather(identity: UserEntity = Depends(get_current_access_identity)):
+    updated_trip: TripEntity = trip_controller.update_trip_by_id(new_info, trip_id)
+    return JSONResponse(status_code=status.HTTP_200_OK, content=updated_trip.dict())

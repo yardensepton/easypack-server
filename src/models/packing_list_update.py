@@ -1,9 +1,9 @@
 from pydantic import BaseModel
 
-from src.enums.operation import Operation
+from src.enums.action import Action
 from src.models.item_for_trip import ItemForTrip
 
 
 class PackingListUpdate(BaseModel):
-    operation: Operation
+    action: Action
     details: ItemForTrip
