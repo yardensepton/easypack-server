@@ -9,6 +9,7 @@ from src.models.packing_list_entity import PackingListEntity
 from src.exceptions.already_exists_error import AlreadyExistsError
 from src.exceptions.not_found_error import NotFoundError
 from db import db
+from src.models.packing_list_request import PackingListRequest
 from src.models.trip_entity import TripEntity
 from src.models.user_entity import UserEntity
 from src.repositories.packing_lists_db import PackingListsDB
@@ -28,19 +29,16 @@ class PackingListService:
         raise NotFoundError(obj_name="Packing list", obj_id=list_id)
 
     async def create_packing_list(self, trip: TripEntity, user: UserEntity, lat_lon: dict,
-                                  items_preferences: Optional[List[str]] = None,
-                                  activities_preferences: Optional[List[str]] = None) -> PackingListEntity:
+                                  packing_list_request: PackingListRequest) -> PackingListEntity:
         if self.get_packing_list_by_trip_id(trip_id=trip.id):
             raise AlreadyExistsError(obj_name="packing list to trip", obj_id=trip.id)
         packing_list_entity: PackingListEntity = await self.build_packing_list(trip=trip, user=user,
                                                                                lat_lon=lat_lon,
-                                                                               items_preferences=items_preferences,
-                                                                               activities_preferences=activities_preferences)
+                                                                               packing_list_request=packing_list_request)
         return self.db_handler.insert_one(packing_list_entity)
 
     async def build_packing_list(self, trip: TripEntity, user: UserEntity, lat_lon: dict,
-                                 items_preferences: Optional[List[str]] = None,
-                                 activities_preferences: Optional[List[str]] = None) -> PackingListEntity:
+                                 packing_list_request: PackingListRequest) -> PackingListEntity:
         start_date: datetime = DateValidator.parse_date(trip.departure_date)
         end_date: datetime = DateValidator.parse_date(trip.return_date)
         trip_days: int = (end_date - start_date).days
@@ -64,6 +62,12 @@ class PackingListService:
                                                                         user_trip_average_temp=average_temp_of_trip)
         all_items.update(basic_items)
 
+        if packing_list_request.is_work:
+            work_items: List[Item] = self.items_controller.filter_items_by(user_trip_average_temp=average_temp_of_trip,
+                                                                           category="work",
+                                                                           user_gender=user.gender)
+            all_items.update(work_items)
+
         # check if it's supposed to rain
         if self.weather_controller.check_if_raining(weather_data=trip.weather_data):
             rain_items: List[Item] = self.items_controller.filter_items_by(user_trip_average_temp=average_temp_of_trip,
@@ -74,6 +78,7 @@ class PackingListService:
                                                                    default=False,
                                                                    category="shirts",
                                                                    user_gender=user.gender)
+        print(shirts)
 
         all_items.update(shirts)
         pants: List[Item] = self.items_controller.filter_items_by(user_trip_average_temp=average_temp_of_trip,
@@ -86,23 +91,34 @@ class PackingListService:
                                                                   category="shoes", user_gender=user.gender)
         all_items.update(shoes)
 
-        jackets: List[Item] = self.items_controller.filter_items_by(user_trip_average_temp=average_temp_of_trip,
-                                                                    default=False,
-                                                                    category="coats and jackets",
-                                                                    user_gender=user.gender)
-        all_items.update(jackets)
+        mid_layer: List[Item] = self.items_controller.filter_items_by(user_trip_average_temp=average_temp_of_trip,
+                                                                      default=False,
+                                                                      category="mid layer",
+                                                                      user_gender=user.gender)
+        all_items.update(mid_layer)
+        top_layer: List[Item] = self.items_controller.filter_items_by(user_trip_average_temp=average_temp_of_trip,
+                                                                      default=False,
+                                                                      category="top layer",
+                                                                      user_gender=user.gender)
+        all_items.update(top_layer)
 
-        if activities_preferences:
-            print(activities_preferences)
-            for preference in activities_preferences:
+        thermal: List[Item] = self.items_controller.filter_items_by(user_trip_average_temp=average_temp_of_trip,
+                                                                    default=False,
+                                                                    category="thermal",
+                                                                    user_gender=user.gender)
+        all_items.update(thermal)
+
+        if packing_list_request.activities_preferences:
+            print(packing_list_request.activities_preferences)
+            for preference in packing_list_request.activities_preferences:
                 print(preference)
                 user_preferences: List[Item] = self.items_controller.filter_items_by(category=preference,
                                                                                      user_gender=user.gender,
                                                                                      user_trip_average_temp=average_temp_of_trip)
                 all_items.update(user_preferences)
 
-        if items_preferences:
-            for preference in items_preferences:
+        if packing_list_request.items_preferences:
+            for preference in packing_list_request.items_preferences:
                 special_item: Item = self.items_controller.get_item_by_name(name=preference)
                 all_items.add(special_item)
 

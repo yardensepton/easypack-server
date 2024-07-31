@@ -4,6 +4,7 @@ from src.models.trip_entity import TripEntity
 from src.models.trip_update import TripUpdate
 from src.exceptions.not_found_error import NotFoundError
 from db import db
+from src.models.weather import WeatherDay
 from src.repositories.trips_db import TripsDB
 
 
@@ -15,13 +16,13 @@ class TripService:
     def create_trip(self, trip: TripEntity) -> TripEntity:
         return self.db_handler.insert_one(trip)
 
-    def get_trip_by_id(self, trip_id: str) -> TripEntity:
+    async def get_trip_by_id(self, trip_id: str) -> TripEntity:
         trip = self.db_handler.find_one("_id", trip_id)
         if trip is not None:
             return trip
         raise NotFoundError(obj_name="Trip", obj_id=trip_id)
 
-    def get_trips_by_user_id(self, user_id: str) -> List[TripEntity]:
+    async def get_trips_by_user_id(self, user_id: str) -> List[TripEntity]:
         return self.db_handler.find({"user_id": user_id})
 
     def delete_trips_by_user_id(self, user_id: str):
@@ -48,3 +49,10 @@ class TripService:
 
     def get_all_trips(self) -> List[TripEntity]:
         return self.db_handler.find_all()
+
+    def update_trip_weather_data(self, new_weather_data: List[WeatherDay], trip_id: str) -> TripEntity:
+        weather_data_dicts = [weather_day.to_dict() for weather_day in new_weather_data]
+        updated = self.db_handler.find_one_and_update({"weather_data": weather_data_dicts}, trip_id)
+        if updated is not None:
+            return updated
+        raise NotFoundError(obj_name="trip", obj_id=trip_id)

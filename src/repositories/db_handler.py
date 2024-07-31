@@ -4,7 +4,6 @@ from pymongo.collection import Collection, ReturnDocument
 from pymongo.database import Database
 from typing import List, Dict, Optional
 from bson import ObjectId
-from pymongo.errors import DuplicateKeyError
 
 from src.repositories.db_handler_base import DBHandlerBase
 from src.repositories import T
@@ -49,6 +48,7 @@ class DBHandler(DBHandlerBase):
         return [self.init(obj) for obj in self.collection.find()]
 
     def find_one_and_update(self, new_info: Dict, key: str) -> Optional[T]:
+        print(new_info)
         if len(new_info) >= 1:
             updated_obj: Dict = self.collection.find_one_and_update(
                 {"_id": ObjectId(key)},
@@ -76,7 +76,6 @@ class DBHandler(DBHandlerBase):
 
     def update_specific_field(self, outer_value: str, inner_value: str, outer_value_name: str, inner_value_name: str,
                               update_fields: Dict) -> Optional[T]:
-        # logging.debug(f"Updating item {item_id} in document with {key}: {value}")
         object_id = self.add_object_id("_id", outer_value)
         updated_obj: Dict = self.collection.find_one_and_update(
             {"_id": object_id, f"{outer_value_name}.{inner_value_name}": inner_value},

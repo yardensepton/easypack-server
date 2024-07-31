@@ -30,7 +30,7 @@ def user_trip_access_or_abort(func):
     async def wrapper(*args, **kwargs):
         trip_id = kwargs.get('trip_id')
         identity = kwargs.get('identity')
-        trip: TripBoundary = trip_controller.get_trip_by_id(trip_id)
+        trip: TripBoundary = await trip_controller.get_trip_by_id(trip_id)
         if identity.role == RoleOptions.ADMIN.value:
             return await func(*args, **kwargs)
         if trip.user_id != identity.id:

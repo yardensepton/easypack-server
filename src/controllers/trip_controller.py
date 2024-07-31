@@ -7,6 +7,7 @@ from src.models.trip_entity import TripEntity
 from src.models.trip_info import TripInfo
 from src.models.trip_update import TripUpdate
 from src.exceptions.input_error import InputError
+from src.models.weather import WeatherDay
 from src.services.trip_service import TripService
 from src.utils.date_validator import DateValidator
 
@@ -20,14 +21,14 @@ class TripController:
     def create_trip(self, trip_entity: TripEntity) -> TripEntity:
         return self.trip_service.create_trip(trip=trip_entity)
 
-    def get_trip_by_id(self, trip_id: str) -> TripEntity:
-        return self.trip_service.get_trip_by_id(trip_id=trip_id)
+    async def get_trip_by_id(self, trip_id: str) -> TripEntity:
+        return await self.trip_service.get_trip_by_id(trip_id=trip_id)
 
-    def get_trips_by_user_id(self, user_id: str) -> List[TripEntity]:
-        return self.trip_service.get_trips_by_user_id(user_id=user_id)
+    async def get_trips_by_user_id(self, user_id: str) -> List[TripEntity]:
+        return await self.trip_service.get_trips_by_user_id(user_id=user_id)
 
-    def sort_users_trips(self, user_id: str) -> List[TripEntity]:
-        trips: List[TripEntity] = self.trip_service.get_trips_by_user_id(user_id=user_id)
+    async def sort_users_trips(self, user_id: str) -> List[TripEntity]:
+        trips: List[TripEntity] = await self.trip_service.get_trips_by_user_id(user_id=user_id)
 
         # Parse the departure_date strings into datetime.date objects
         for trip in trips:
@@ -45,8 +46,8 @@ class TripController:
 
         return sorted_trips
 
-    def get_sorted_trips_info(self, user_id: str) -> List[TripInfo]:
-        trips: List[TripEntity] = self.sort_users_trips(user_id=user_id)
+    async def get_sorted_trips_info(self, user_id: str) -> List[TripInfo]:
+        trips: List[TripEntity] = await self.sort_users_trips(user_id=user_id)
 
         trip_info_list: List[TripInfo] = []
         for trip in trips:
@@ -57,11 +58,11 @@ class TripController:
                          destination=destination_name, city_url=destination.city_url))
         return trip_info_list
 
-    def get_trips_in_a_week(self, user_id: str) -> List[TripEntity]:
-        trips: List[TripEntity] = self.trip_service.get_trips_by_user_id(user_id=user_id)
+    async def get_trips_in_a_week(self, user_id: str) -> List[TripEntity]:
+        trips: List[TripEntity] = await self.trip_service.get_trips_by_user_id(user_id=user_id)
         today = datetime.now().date()
         one_week_later = today + timedelta(days=7)
-        # Parse the departure_date strings into datetime.date objects and filter trips
+
         filtered_trips = []
         for trip in trips:
             trip_date = datetime.strptime(trip.departure_date, "%Y-%m-%d").date()
@@ -70,22 +71,23 @@ class TripController:
                 filtered_trips.append(trip)
 
         # Sort the filtered trips by departure_date
-        filtered_trips.sort(key=lambda trip: trip.departure_date)
+        filtered_trips.sort(key=lambda checked_trip: checked_trip.departure_date)
 
         # Convert the datetime.date objects back to strings for return
         for trip in filtered_trips:
             trip.departure_date = trip.departure_date.strftime("%Y-%m-%d")
 
         return filtered_trips
-    def get_users_upcoming_trip(self, user_id: str) -> TripEntity:
-        trips: List[TripEntity] = self.sort_users_trips(user_id=user_id)
+
+    async def get_users_upcoming_trip(self, user_id: str) -> TripEntity:
+        trips: List[TripEntity] = await self.sort_users_trips(user_id=user_id)
         return trips[0] if trips else None
 
     def delete_trip_by_id(self, trip_id: str):
         self.trip_service.delete_trip_by_id(trip_id=trip_id)
 
-    def delete_trips_by_user_id(self, user_id: str):
-        trips = self.get_trips_by_user_id(user_id=user_id)
+    async def delete_trips_by_user_id(self, user_id: str):
+        trips = await self.get_trips_by_user_id(user_id=user_id)
         if trips is not None:
             for trip_data in trips:
                 trip_id = trip_data.id
@@ -127,9 +129,9 @@ class TripController:
     def get_all_trips(self) -> List[TripEntity]:
         return self.trip_service.get_all_trips()
 
-    def availability_within_date_range(self, user_id: str, departure_date: str, return_date: str, trip_id: str) -> bool:
+    async def availability_within_date_range(self, user_id: str, departure_date: str, return_date: str, trip_id: str) -> bool:
         # check if the user already has a trip within the given date range
-        trips = self.get_trips_by_user_id(user_id=user_id)
+        trips = await self.get_trips_by_user_id(user_id=user_id)
         if trips is None:
             return True
 
@@ -151,11 +153,5 @@ class TripController:
         # No trip found within the date range
         return True
 
-    # def are_dates_valid(self, departure_date: str, return_date: str) -> bool:
-    #     # check if the return date is before the departure date
-    #     if departure_date and return_date:
-    #         date1 = DateValidator.parse_date(departure_date)
-    #         date2 = DateValidator.parse_date(return_date)
-    #         if date1 > date2:
-    #             raise InputError("Return date is before departure date")
-    #     return True
+    def update_trip_weather_data(self, trip: TripEntity, new_weather_data: List[WeatherDay]):
+        self.trip_service.update_trip_weather_data(new_weather_data=new_weather_data, trip_id=trip.id)

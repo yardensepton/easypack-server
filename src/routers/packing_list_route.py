@@ -7,6 +7,7 @@ from starlette.responses import JSONResponse
 from src.controllers.packing_list_controller import PackingListController
 from src.controllers.trip_controller import TripController
 from src.models.packing_list_entity import PackingListEntity
+from src.models.packing_list_request import PackingListRequest
 from src.models.packing_list_update import PackingListUpdate
 from src.models.trip_entity import TripEntity
 from src.models.user_entity import UserEntity
@@ -25,15 +26,15 @@ trip_controller = TripController()
 
 @router.post("/{trip_id}", response_model=PackingListEntity)
 @user_trip_access_or_abort
-async def create_packing_list(trip_id: str, items_preferences: Optional[List[str]] = None,
-                              activities_preferences: Optional[List[str]] = None,
+async def create_packing_list(trip_id: str, packing_list_request: PackingListRequest,
                               identity: UserEntity = Depends(get_current_access_identity)):
-    trip: TripEntity = trip_controller.get_trip_by_id(trip_id)
-    lat_lon: dict = await get_lat_lon(trip.destination.text)
+    print(packing_list_request.is_work)
+    trip: TripEntity = await trip_controller.get_trip_by_id(trip_id)
+    lat_lon: dict = await get_lat_lon(identity.city.text)
     pack_list: PackingListEntity = await packing_list_controller.create_packing_list(trip=trip,
+                                                                                     packing_list_request=packing_list_request,
                                                                                      user=identity, lat_lon=lat_lon,
-                                                                                     activities_preferences=activities_preferences,
-                                                                                     items_preferences=items_preferences)
+                                                                                     )
     return JSONResponse(status_code=status.HTTP_200_OK, content=pack_list.dict())
 
 
@@ -46,7 +47,7 @@ async def get(trip_id: Optional[str] = Query(None, description="Trip ID"),
         return JSONResponse(status_code=status.HTTP_200_OK, content=packing_list.dict())
 
     elif trip_id is not None:
-        trip_controller.get_trip_by_id(trip_id)
+        await trip_controller.get_trip_by_id(trip_id)
         packing_list: PackingListEntity = packing_list_controller.get_packing_list_by_trip_id(trip_id)
         if packing_list is None:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
