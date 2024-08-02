@@ -98,7 +98,7 @@ async def update_trips_weather(identity: UserEntity = Depends(get_current_access
 
 @router.get("/sorted", response_model=Union[TripInfo, Optional[List[TripInfo]]])
 async def get_sorted_trips_info_by_current_user(identity: UserEntity = Depends(get_current_access_identity)):
-    user_controller.get_user_by_id(identity.id)
+    await user_controller.get_user_by_id(identity.id)
     trips: List[TripInfo] = await trip_controller.get_sorted_trips_info(identity.id)
     print(f"trips len is {len(trips)} ")
     return JSONResponse(status_code=status.HTTP_200_OK, content=[trip.dict() for trip in trips])
@@ -108,7 +108,7 @@ async def get_sorted_trips_info_by_current_user(identity: UserEntity = Depends(g
 @user_trip_access_or_abort
 async def update_trip_by_id(new_info: TripUpdate, trip_id: str,
                             identity: UserEntity = Depends(get_current_access_identity)):
-    updated_trip: TripEntity = trip_controller.update_trip_by_id(new_info, trip_id)
+    updated_trip: TripEntity =await trip_controller.update_trip_by_id(new_info, trip_id)
     return JSONResponse(status_code=status.HTTP_200_OK, content=updated_trip.dict())
 
 

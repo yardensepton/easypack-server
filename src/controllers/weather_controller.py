@@ -81,12 +81,12 @@ class WeatherController:
         return False
 
     @classmethod
-    def get_user_feeling(cls, average_temp_of_trip: float, start_date: datetime, end_date: datetime,
-                         lat_lon: dict) -> UserWeatherFeelingOptions:
-        users_residence_average_temp: float = cls.get_average_temp_in_user_residence(start_date=start_date,
-                                                                                     end_date=end_date, lat_lon=lat_lon)
-        print(f"user residence average {round(users_residence_average_temp)}")
-        print(f"trip temp {round(average_temp_of_trip)}")
+    def get_user_feeling(cls, average_temp_of_trip: float,
+                         users_residence_average_temp: int) -> UserWeatherFeelingOptions:
+        # users_residence_average_temp: float = cls.get_average_temp_in_user_residence(start_date=start_date,
+        #                                                                              end_date=end_date, lat_lon=lat_lon)
+        # print(f"user residence average {round(users_residence_average_temp)}")
+        # print(f"trip temp {round(average_temp_of_trip)}")
         if round(users_residence_average_temp) >= round(average_temp_of_trip) + 5:
             return UserWeatherFeelingOptions.COLD
         elif round(users_residence_average_temp) <= round(average_temp_of_trip - 5):

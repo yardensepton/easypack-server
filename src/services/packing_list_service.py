@@ -44,11 +44,13 @@ class PackingListService:
         trip_days: int = (end_date - start_date).days
         print(trip_days)
         trip_days = trip_days if trip_days > 0 else 1
+        users_residence_average_temp: int = round(self.weather_controller.get_average_temp_in_user_residence(
+            start_date=start_date,
+            end_date=end_date, lat_lon=lat_lon))
 
-        average_temp_of_trip = self.weather_controller.calculate_average_temp(trip.weather_data)
+        average_temp_of_trip: int = round(self.weather_controller.calculate_average_temp(trip.weather_data))
         users_feeling = self.weather_controller.get_user_feeling(average_temp_of_trip=average_temp_of_trip,
-                                                                 lat_lon=lat_lon,
-                                                                 start_date=start_date, end_date=end_date)
+                                                                 users_residence_average_temp=users_residence_average_temp)
 
         print(average_temp_of_trip)
         print(users_feeling)
@@ -130,7 +132,9 @@ class PackingListService:
             packing_list_items.append(item_for_trip)
         packing_list_items.sort(key=lambda x: (x.category, x.item_name))
         packing_list_entity: PackingListEntity = PackingListEntity(trip_id=trip.id, items=packing_list_items,
-                                                                   description=users_feeling.value)
+                                                                   description=users_feeling.value,
+                                                                   home_average_temp=users_residence_average_temp,
+                                                                   trip_average_temp=average_temp_of_trip)
 
         print(packing_list_entity)
         return packing_list_entity

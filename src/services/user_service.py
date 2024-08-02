@@ -1,10 +1,9 @@
 import logging
-from datetime import datetime, timedelta
 from typing import Dict
 
 from pydantic import EmailStr
 
-from config import RESET_PASSWORD_TIME_EXPIRE
+
 from db import db
 from src.models.auth_info import AuthInfo
 from src.models.user_boundary import UserBoundary
@@ -37,7 +36,7 @@ class UserService:
             raise AlreadyExistsError("user", email)
         return True
 
-    def get_user_by_id(self, user_id: str) -> UserEntity:
+    async def get_user_by_id(self, user_id: str) -> UserEntity:
         user: UserEntity = self.db_handler.find_one("_id", user_id)
         if user is not None:
             return user
