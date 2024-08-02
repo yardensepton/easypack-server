@@ -20,8 +20,8 @@ class UserController:
             # user.city.currency_code = self.city_controller.get_country_code(user.city.country_name)
             return self.user_service.create_user(user)
 
-    def get_user_by_id(self, user_id: str) -> UserEntity:
-        return self.user_service.get_user_by_id(user_id)
+    async def get_user_by_id(self, user_id: str) -> UserEntity:
+        return await self.user_service.get_user_by_id(user_id)
 
     def get_user_by_email(self, email: EmailStr) -> UserEntity:
         return self.user_service.get_user_by_email(email)
@@ -29,8 +29,8 @@ class UserController:
     def delete_user_by_id(self, user_id: str):
         self.user_service.delete_user_by_id(user_id)
 
-    def update_user_by_id(self, new_info: UserUpdate, user_id: str) -> UserEntity:
-        return self.user_service.update_user_by_id(new_info, user_id)
+    def update_user_by_id(self, new_info: UserUpdate, user: UserEntity) -> UserEntity:
+        return self.user_service.update_user_by_id(new_info, user_id=user.id)
 
     def authenticate_user_or_abort(self, user_model: AuthInfo) -> UserEntity:
         return self.user_service.authenticate_user_or_abort(user_model)

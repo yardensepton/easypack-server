@@ -96,8 +96,8 @@ class TripController:
                     self.packing_list_controller.delete_packing_list_by_trip_id(trip_id)
                     self.delete_trip_by_id(trip_id)
 
-    def update_trip_by_id(self, new_info: TripUpdate, trip_id: str) -> TripEntity:
-        trip_dict = self.get_trip_by_id(trip_id)
+    async def update_trip_by_id(self, new_info: TripUpdate, trip_id: str) -> TripEntity:
+        trip_dict = await self.get_trip_by_id(trip_id)
         if trip_dict is not None:
             user_id = trip_dict.user_id
 

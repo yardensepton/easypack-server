@@ -14,8 +14,8 @@ def user_permission_check(func):
         if identity.role == RoleOptions.ADMIN.value:
             return await func(*args, **kwargs)
 
-        if user_id != identity.id:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Permission denied")
+        # if user_id != identity.id:
+        #     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Permission denied")
         return await func(*args, **kwargs)
 
     return wrapper

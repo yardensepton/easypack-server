@@ -123,25 +123,25 @@ async def refresh_new_token(refresh_token: str):
                                                                  "token_type": "bearer"})
 
 
-@router.get("/{user_id}", response_model=UserEntity)
+@router.get("", response_model=UserEntity)
 @user_permission_check
-async def get_user_by_id(user_id: str, identity: UserEntity = Depends(get_current_access_identity)):
-    user = user_controller.get_user_by_id(user_id)
+async def get_user_by_id(identity: UserEntity = Depends(get_current_access_identity)):
+    user = await user_controller.get_user_by_id(identity.id)
     return JSONResponse(status_code=status.HTTP_200_OK, content=user.dict())
 
 
 @router.delete("/{user_id}")
 @user_permission_check
 async def delete_user_by_id(user_id: str, identity: UserEntity = Depends(get_current_access_identity)):
-    user_controller.get_user_by_id(user_id)
-    trip_controller.delete_trips_by_user_id(user_id)
+    await user_controller.get_user_by_id(user_id)
+    await trip_controller.delete_trips_by_user_id(user_id)
     user_controller.delete_user_by_id(user_id)
     return JSONResponse(status_code=status.HTTP_200_OK, content=f"user {user_id} deleted")
 
 
-@router.put("/{user_id}", response_model=UserEntity)
-@user_permission_check
-async def update_user_by_id(new_info: UserUpdate, user_id: str,
+@router.put("", response_model=UserEntity)
+# @user_permission_check
+async def update_user_by_id(new_info: UserUpdate,
                             identity: UserEntity = Depends(get_current_access_identity)):
-    updated_user: UserEntity = user_controller.update_user_by_id(new_info, user_id)
+    updated_user: UserEntity = user_controller.update_user_by_id(new_info, identity)
     return JSONResponse(status_code=status.HTTP_200_OK, content=updated_user.dict())
