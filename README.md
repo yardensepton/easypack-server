@@ -5,9 +5,10 @@ By analyzing your trip's destination, dates, and expected weather conditions, Ea
 Whether you're heading to a sunny beach or a snowy mountain, EasyPack ensures you won't forget any essentials.
 Plus, you can personalize your list further by adding special items.
 
-## Quickstart
 
-The backend uses `Mongo database`, TODO: add more. 
+The backend uses a `MongoDB database` and integrates with the `Meteostat Python library` to fetch historical weather data for the user's residence and the `VisualCrossingAPI` to provide current and forecasted weather data for the trip's destination
+
+## Quickstart
 
 #### To run it, configure environment variables in a new `.env` file:
 run the following bash script. remember to fill the env variables according to your configuration.
