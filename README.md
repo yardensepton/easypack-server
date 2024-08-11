@@ -1,6 +1,9 @@
 # Easy Pack :luggage:	:airplane:	
 
-### TODO: emoji
+EasyPack is a smart packing list generator designed to simplify your travel preparations.
+By analyzing your trip's destination, dates, and expected weather conditions, EasyPack creates a customized packing list tailored to your personal preferences and temperature comfort zones.
+Whether you're heading to a sunny beach or a snowy mountain, EasyPack ensures you won't forget any essentials.
+Plus, you can personalize your list further by adding special items.
 
 ## Quickstart
 
