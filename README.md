@@ -1,4 +1,4 @@
-# Easy Pack
+# Easy Pack :luggage:	:airplane:	
 
 ### TODO: emoji
 
