@@ -48,7 +48,7 @@ Run the following command to execute the script:
 
 ## Run the backend locally
 ```python
-python...
+...
 ```
 
 ## Create an image and run it locally
