@@ -1,4 +1,4 @@
-# Easy Pack :luggage:	:flight_departure:	
+# Easy Pack :luggage:	:airplane:
 
 EasyPack is a smart packing list generator designed to simplify your travel preparations.
 By analyzing your trip's destination, dates, and expected weather conditions, EasyPack creates a customized packing list tailored to your personal preferences and temperature comfort zones.
