@@ -40,7 +40,9 @@ Use the provided script `insert_data.py` to insert critical data into your Mongo
 * Clothing items categorized by temperature ranges, which the packing list generator uses to recommend appropriate clothing based on the trip's weather.
 * Special items such as eyeglasses and contact lenses, which are integrated into the packing list functionality.
 Run the following command to execute the script:
-` python insert_data.py `
+```
+ python insert_data.py
+```
 
 
 
