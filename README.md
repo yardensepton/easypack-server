@@ -35,6 +35,15 @@ JWT_ALGORITHM=${JWT_ALGORITHM}
 CONNECTION_STRING_MONGO=${CONNECTION_STRING_MONGO}
 EOF
 ```
+#### To insert essential data into your database:
+Use the provided script `insert_data.py` to insert critical data into your MongoDB database. This data is necessary for the functionality of EasyPack and includes:
+* Clothing items categorized by temperature ranges, which the packing list generator uses to recommend appropriate clothing based on the trip's weather.
+* Special items such as eyeglasses and contact lenses, which are integrated into the packing list functionality.
+Run the following command to execute the script:
+` python insert_data.py `
+
+
+
 
 Then, use the following `docker` command in order to run the backend:
 
