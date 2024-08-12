@@ -8,7 +8,7 @@ Plus, you can personalize your list further by adding special items.
 
 The backend uses a [MongoDB database](https://www.mongodb.com/) and integrates with the [Meteostat Python library](https://dev.meteostat.net/python/) to fetch historical weather data for the user's residence and the [VisualCrossingAPI](https://www.visualcrossing.com/) to provide current and forecasted weather data for the trip's destination
 
-## Quickstart
+## Run the server
 
 #### To run it, configure environment variables in a new `.env` file:
 run the following bash script. remember to fill the env variables according to your configuration.
@@ -45,11 +45,12 @@ Run the following command to execute the script:
  python insert_data.py
 ```
 
+## Run the backend locally
+```python
+python...
+```
 
-
-
-Then, use the following `docker` command in order to run the backend:
-
+## Create an image and run it locally
 ```bash
 docker build -t <tag-name>:<version>
 docker run -p 8080:8080 --env-file .env -t <tag-name>:<version>
