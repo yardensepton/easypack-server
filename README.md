@@ -7,7 +7,7 @@ Plus, you can personalize your list further by adding special items.
 
 
 The backend uses a [MongoDB database](https://www.mongodb.com/) and integrates with the [Meteostat Python library](https://dev.meteostat.net/python/) to fetch historical weather data for the user's residence and the [VisualCrossingAPI](https://www.visualcrossing.com/) to provide current and forecasted weather data for the trip's destination.
-The backend also uses the [Google Places API](https://developers.google.com/maps/documentation/places/web-service/overview) to get autocomplete city names for creating a profile or a new trip.
+The backend also uses the [Google Places API](https://developers.google.com/maps/documentation/places/web-service/overview) to get autocomplete city names and city pictures for creating a profile or a new trip.
 
 ## Run the server
 
