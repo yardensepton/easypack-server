@@ -5,11 +5,12 @@ The server handles the creation of customized packing lists by analyzing trip de
 
 The frontend application for EasyPack is maintained in a separate repository [easypack-frontend](https://github.com/yardensepton/easypack-frontend).
 
-## Key Features:
+## Key Features :gift:
 
 * FastAPI Framework: Ensures high performance and scalability.
-* Customizable Packing Lists: Generates lists based on destination, weather, and personal preferences.
-* Secure Data Handling: Utilizes secure methods for managing user data.
+* Customizable Packing Lists: Generates lists based on destination, weather, personal preferences and the historical weather data of the user's residence.
+* User Authentication: Implements OAuth2PasswordBearer for password and email authentication, including a 'forgot password' option for user convenience.
+* Security System: Uses access tokens and refresh tokens to maintain secure and seamless user sessions.
 
 Whether users are traveling to a sunny beach or a snowy mountain, EasyPack provides a tailored packing list to ensure they have everything they need.
 Users can also add special items to their lists for further personalization.
