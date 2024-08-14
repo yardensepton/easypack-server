@@ -6,7 +6,7 @@ The server handles the creation of customized packing lists by analyzing trip de
 The frontend application for EasyPack is maintained in a separate repository [easypack-frontend](https://github.com/yardensepton/easypack-frontend).
 
 ## Table of Contents
-* [Key Features](#key features)
+* [Key Features](#key-features)
 * [Installation](#installation)
 * [Usage](#usage)
 
