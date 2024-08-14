@@ -1,13 +1,24 @@
-# Easy Pack :luggage:	:airplane:
+# Easy Pack Server :luggage:	:airplane:
 
-EasyPack is a smart packing list generator designed to simplify your travel preparations.
-By analyzing your trip's destination, dates, and expected weather conditions, EasyPack creates a customized packing list tailored to your personal preferences and temperature comfort zones.
-Whether you're heading to a sunny beach or a snowy mountain, EasyPack ensures you won't forget any essentials.
-Plus, you can personalize your list further by adding special items.
+The EasyPack server is built with Python using the FastAPI framework, offering a secure and efficient backend for the EasyPack application.
+The server handles the creation of customized packing lists by analyzing trip details, such as destination, dates, and weather conditions.
 
+## Key Features:
 
-The backend uses a [MongoDB database](https://www.mongodb.com/) and integrates with the [Meteostat Python library](https://dev.meteostat.net/python/) to fetch historical weather data for the user's residence and the [VisualCrossingAPI](https://www.visualcrossing.com/) to provide current and forecasted weather data for the trip's destination.
-The backend also uses the [Google Places API](https://developers.google.com/maps/documentation/places/web-service/overview) to get autocomplete city names and city pictures for creating a profile or a new trip.
+* FastAPI Framework: Ensures high performance and scalability.
+* Customizable Packing Lists: Generates lists based on destination, weather, and personal preferences.
+* Secure Data Handling: Utilizes secure methods for managing user data.
+
+Whether users are traveling to a sunny beach or a snowy mountain, EasyPack provides a tailored packing list to ensure they have everything they need.
+Users can also add special items to their lists for further personalization.
+
+The backend leverages a [MongoDB database](https://www.mongodb.com/) for robust data storage and integrates with multiple APIs
+to provide comprehensive weather and location information:
+
+* [Meteostat Python library](https://dev.meteostat.net/python/): Fetches historical weather data based on the user's residence.
+* [VisualCrossingAPI](https://www.visualcrossing.com/): Supplies current and forecasted weather data for trip destinations.
+* [Google Places API](https://developers.google.com/maps/documentation/places/web-service/overview): Provides autocomplete suggestions for city names and retrieves city images for profile creation or trip planning.
+
 
 ## Run the server
 
