@@ -5,7 +5,13 @@ The server handles the creation of customized packing lists by analyzing trip de
 
 The frontend application for EasyPack is maintained in a separate repository [easypack-frontend](https://github.com/yardensepton/easypack-frontend).
 
-## Key Features :ballot_box_with_check:	
+## Table of Contents
+* [Key Features](#key features)
+* [Installation](#installation)
+* [Usage](#usage)
+
+
+## Key Features	
 
 * FastAPI Framework: Ensures high performance and scalability.
 * Customizable Packing Lists: Generates lists based on destination, weather, personal preferences and the historical weather data of the user's residence.
@@ -23,7 +29,7 @@ to provide comprehensive weather and location information:
 * [Google Places API](https://developers.google.com/maps/documentation/places/web-service/overview): Provides autocomplete suggestions for city names and retrieves city images for profile creation or trip planning.
 
 
-## Run the server
+## Installation
 
 #### To run it, configure environment variables in a new `.env` file:
 run the following bash script. remember to fill the env variables according to your configuration.
