@@ -3,6 +3,8 @@
 The EasyPack server is built with Python using the FastAPI framework, offering a secure and efficient backend for the EasyPack application.
 The server handles the creation of customized packing lists by analyzing trip details, such as destination, dates, and weather conditions.
 
+The frontend application for EasyPack is maintained in a separate repository [easypack-frontend](https://github.com/yardensepton/easypack-frontend).
+
 ## Key Features:
 
 * FastAPI Framework: Ensures high performance and scalability.
@@ -18,8 +20,6 @@ to provide comprehensive weather and location information:
 * [Meteostat Python library](https://dev.meteostat.net/python/): Fetches historical weather data based on the user's residence.
 * [VisualCrossingAPI](https://www.visualcrossing.com/): Supplies current and forecasted weather data for trip destinations.
 * [Google Places API](https://developers.google.com/maps/documentation/places/web-service/overview): Provides autocomplete suggestions for city names and retrieves city images for profile creation or trip planning.
-
-The frontend application for EasyPack is maintained in a separate repository [easypack-frontend](https://github.com/yardensepton/easypack-frontend).
 
 
 ## Run the server
