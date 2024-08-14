@@ -1,4 +1,4 @@
-# Easy Pack Server :luggage: :memo::pencil:
+# Easy Pack Server :luggage: :memo:
 
 The EasyPack server is built with Python using the FastAPI framework, offering a secure and efficient backend for the EasyPack application.
 The server handles the creation of customized packing lists by analyzing trip details, such as destination, dates, and weather conditions.
