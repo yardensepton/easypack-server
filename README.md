@@ -1,11 +1,11 @@
-# Easy Pack Server :luggage:	:airplane:
+# Easy Pack Server :luggage: :memo::pencil:
 
 The EasyPack server is built with Python using the FastAPI framework, offering a secure and efficient backend for the EasyPack application.
 The server handles the creation of customized packing lists by analyzing trip details, such as destination, dates, and weather conditions.
 
 The frontend application for EasyPack is maintained in a separate repository [easypack-frontend](https://github.com/yardensepton/easypack-frontend).
 
-## Key Features :gift:
+## Key Features :ballot_box_with_check:	
 
 * FastAPI Framework: Ensures high performance and scalability.
 * Customizable Packing Lists: Generates lists based on destination, weather, personal preferences and the historical weather data of the user's residence.
