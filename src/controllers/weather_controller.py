@@ -139,3 +139,22 @@ class WeatherController:
             return UserWeatherFeelingOptions.HOT
         else:
             return UserWeatherFeelingOptions.NORMAL
+
+    @classmethod
+    def adjust_temperature_based_on_feeling(cls, user_feeling: UserWeatherFeelingOptions,
+                                            average_temp_of_trip: int) -> int:
+        """
+               Adjust the temperature in the weather data based on the user's feeling.
+
+               Args: user_trip_average_temp (float): The average temperature of the trip. user_feeling (
+               UserWeatherFeelingOptions): The user's feeling about the trip's temperature (COLD, HOT, NORMAL).
+
+               Returns:
+                   new user_trip_average_temp after the adjustment.
+               """
+        adjustment = 0
+        if user_feeling == UserWeatherFeelingOptions.COLD:
+            adjustment = -3  # decrease temperature by 3 degrees
+        elif user_feeling == UserWeatherFeelingOptions.HOT:
+            adjustment = 3  # increase temperature by 3 degrees
+        return adjustment + average_temp_of_trip

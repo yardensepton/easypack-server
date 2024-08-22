@@ -34,11 +34,13 @@ class UserService:
                    AlreadyExistsError: If a user with the same email already exists.
                """
         if self.check_user(user.email):
-            user_in_db: UserEntity = UserEntity(name=user.name, email=user.email, city=user.city, gender=user.gender,
+            user_to_db: UserEntity = UserEntity(name=user.name, email=user.email, city=user.city, gender=user.gender,
                                                 role=user.role,
                                                 password=get_password_hash(user.password))
+
+            user_in_db: UserEntity = self.db_handler.insert_one(user_to_db)
             self.logger.info(f"User {user_in_db.id} was added successfully")
-            return self.db_handler.insert_one(user_in_db)
+            return user_in_db
 
     def check_user(self, email: str) -> bool:
         """

@@ -66,8 +66,9 @@ class PackingListService:
         packing_list_entity: PackingListEntity = await self.build_packing_list(trip=trip, user=user,
                                                                                lat_lon=lat_lon,
                                                                                packing_list_request=packing_list_request)
-        self.logger.info(f"Packing list {packing_list_entity.id} was added successfully")
-        return self.db_handler.insert_one(packing_list_entity)
+        db_packing_list : PackingListEntity= self.db_handler.insert_one(packing_list_entity)
+        self.logger.info(f"Packing list {db_packing_list.id} was added successfully")
+        return db_packing_list
 
     async def build_packing_list(self, trip: TripEntity, user: UserEntity, lat_lon: dict,
                                  packing_list_request: PackingListRequest) -> PackingListEntity:
@@ -95,54 +96,57 @@ class PackingListService:
         average_temp_of_trip: int = round(self.weather_controller.calculate_average_temp(trip.weather_data))
         users_feeling = self.weather_controller.get_user_feeling(average_temp_of_trip=average_temp_of_trip,
                                                                  users_residence_average_temp=users_residence_average_temp)
+        adjustment_average_temp_of_trip: int = self.weather_controller.adjust_temperature_based_on_feeling(
+            user_feeling=users_feeling, average_temp_of_trip=average_temp_of_trip)
 
         all_items: Set[Item] = set()
         packing_list_items: List[ItemForTrip] = []
 
         basic_items: List[Item] = self.items_controller.filter_items_by(default=True, user_gender=user.gender,
-                                                                        user_trip_average_temp=average_temp_of_trip)
+                                                                        user_trip_average_temp=adjustment_average_temp_of_trip)
         all_items.update(basic_items)
 
         if packing_list_request.is_work:
-            work_items: List[Item] = self.items_controller.filter_items_by(user_trip_average_temp=average_temp_of_trip,
-                                                                           category="work",
-                                                                           user_gender=user.gender)
+            work_items: List[Item] = self.items_controller.filter_items_by(
+                user_trip_average_temp=adjustment_average_temp_of_trip,
+                category="work",
+                user_gender=user.gender)
             all_items.update(work_items)
 
         if self.weather_controller.check_if_raining(weather_data=trip.weather_data):
-            rain_items: List[Item] = self.items_controller.filter_items_by(user_trip_average_temp=average_temp_of_trip,
+            rain_items: List[Item] = self.items_controller.filter_items_by(user_trip_average_temp=adjustment_average_temp_of_trip,
                                                                            category="rain clothes",
                                                                            user_gender=user.gender)
             all_items.update(rain_items)
 
-        shirts: List[Item] = self.items_controller.filter_items_by(user_trip_average_temp=average_temp_of_trip,
+        shirts: List[Item] = self.items_controller.filter_items_by(user_trip_average_temp=adjustment_average_temp_of_trip,
                                                                    default=False,
                                                                    category="shirts",
                                                                    user_gender=user.gender)
 
         all_items.update(shirts)
-        pants: List[Item] = self.items_controller.filter_items_by(user_trip_average_temp=average_temp_of_trip,
+        pants: List[Item] = self.items_controller.filter_items_by(user_trip_average_temp=adjustment_average_temp_of_trip,
                                                                   default=False,
                                                                   category="pants",
                                                                   user_gender=user.gender)
         all_items.update(pants)
-        shoes: List[Item] = self.items_controller.filter_items_by(user_trip_average_temp=average_temp_of_trip,
+        shoes: List[Item] = self.items_controller.filter_items_by(user_trip_average_temp=adjustment_average_temp_of_trip,
                                                                   default=False,
                                                                   category="shoes", user_gender=user.gender)
         all_items.update(shoes)
 
-        mid_layer: List[Item] = self.items_controller.filter_items_by(user_trip_average_temp=average_temp_of_trip,
+        mid_layer: List[Item] = self.items_controller.filter_items_by(user_trip_average_temp=adjustment_average_temp_of_trip,
                                                                       default=False,
                                                                       category="mid layer",
                                                                       user_gender=user.gender)
         all_items.update(mid_layer)
-        top_layer: List[Item] = self.items_controller.filter_items_by(user_trip_average_temp=average_temp_of_trip,
+        top_layer: List[Item] = self.items_controller.filter_items_by(user_trip_average_temp=adjustment_average_temp_of_trip,
                                                                       default=False,
                                                                       category="top layer",
                                                                       user_gender=user.gender)
         all_items.update(top_layer)
 
-        thermal: List[Item] = self.items_controller.filter_items_by(user_trip_average_temp=average_temp_of_trip,
+        thermal: List[Item] = self.items_controller.filter_items_by(user_trip_average_temp=adjustment_average_temp_of_trip,
                                                                     default=False,
                                                                     category="thermal",
                                                                     user_gender=user.gender)
@@ -152,7 +156,7 @@ class PackingListService:
             for preference in packing_list_request.activities_preferences:
                 user_preferences: List[Item] = self.items_controller.filter_items_by(category=preference,
                                                                                      user_gender=user.gender,
-                                                                                     user_trip_average_temp=average_temp_of_trip)
+                                                                                     user_trip_average_temp=adjustment_average_temp_of_trip)
                 all_items.update(user_preferences)
 
         if packing_list_request.items_preferences:
@@ -260,7 +264,7 @@ class PackingListService:
         updated: dict = self.db_handler.add(new_info=new_info_dict, new_info_name="items",
                                             value=list_id)
         if updated is not None:
-            self.logger.info(f"Added {details.item_name} to packing list {list_id}")
+            self.logger.info(f"Added {details} to packing list {list_id}")
 
     async def update_item(self, list_id: str, details: ItemForTrip):
         """
@@ -282,7 +286,7 @@ class PackingListService:
                                                               outer_value_name="items",
                                                               update_fields=new_info_dict)
         if updated is not None:
-            self.logger.info(f"Updated {details.item_name} in packing list {list_id}")
+            self.logger.info(f"Updated {details} in packing list {list_id}")
 
     async def remove_item(self, list_id: str, item_name: str):
         """

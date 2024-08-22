@@ -28,8 +28,10 @@ class TripService:
         Logs:
             Info message indicating that the trip was added successfully.
         """
+
+        trip_to_db: TripEntity = self.db_handler.insert_one(trip)
         self.logger.info(f"Trip {trip.id} was added successfully")
-        return self.db_handler.insert_one(trip)
+        return trip_to_db
 
     async def get_trip_by_id(self, trip_id: str) -> TripEntity:
         """
