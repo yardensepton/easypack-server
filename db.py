@@ -12,7 +12,7 @@ try:
     client = MongoClient(CONNECTION_STRING_MONGO)
     db = client[MONGO_DB_NAME]
 
-    # Optionally, check the connection by pinging the server
+    # Check the connection by pinging the server
     client.admin.command('ping')
     logger.debug("MongoDB connection established successfully.")
 
