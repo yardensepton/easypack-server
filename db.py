@@ -14,7 +14,7 @@ try:
 
     # Optionally, check the connection by pinging the server
     client.admin.command('ping')
-    logger.info("MongoDB connection established successfully.")
+    logger.debug("MongoDB connection established successfully.")
 
 except (ConnectionError, ConfigurationError) as e:
     logger.error(f"Error connecting to MongoDB: {e}")
