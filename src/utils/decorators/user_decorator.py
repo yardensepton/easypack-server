@@ -1,7 +1,5 @@
 from functools import wraps
 
-from fastapi import HTTPException, status
-
 from src.models.user_entity import UserEntity
 from src.enums.role_options import RoleOptions
 

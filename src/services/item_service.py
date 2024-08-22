@@ -1,4 +1,3 @@
-import logging
 from typing import List, Optional
 
 from db import db
@@ -11,12 +10,8 @@ class ItemService:
     def __init__(self):
         self.db_handler = ItemsDB(db, "ITEMS")
 
-    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', filename='app.log',
-                        filemode='w')
-
     def get_all_items_by_category(self, category: str) -> List[Item]:
         items = self.db_handler.find({"category": category})
-        print(items)
         if items:
             return items
         raise NotFoundError(obj_name="items by category", obj_id=category)

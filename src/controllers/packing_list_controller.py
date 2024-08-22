@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List
 
 from src.models.packing_list_entity import PackingListEntity
 from src.models.packing_list_request import PackingListRequest
@@ -34,6 +34,16 @@ class PackingListController:
         return self.packing_list_service.delete_packing_list_by_trip_id(trip_id=trip_id)
 
     async def update_packing_list_by_id(self, new_info: PackingListUpdate, list_id) -> PackingListEntity:
+        """
+        Updates a packing list based on the provided new information.
+
+        Args:
+            new_info (PackingListUpdate): An object containing details about the update action.
+            list_id: The ID of the packing list to be updated.
+
+        Returns:
+            PackingListEntity: The updated packing list entity.
+        """
         # Convert the category and item_name to lowercase and reassign them
         new_info.details.category = new_info.details.category.lower()
         new_info.details.item_name = new_info.details.item_name.lower()

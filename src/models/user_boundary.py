@@ -1,8 +1,7 @@
-from pydantic import ConfigDict, field_validator, EmailStr
+from pydantic import ConfigDict, EmailStr
 
 from src.models.user_update import UserUpdate
 from src.enums.role_options import RoleOptions
-from src.exceptions.input_error import InputError
 
 
 class UserBoundary(UserUpdate):

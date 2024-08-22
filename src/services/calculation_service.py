@@ -13,12 +13,34 @@ class CalculationService:
         self.db_handler = CalculationsDB(db, "CALCULATIONS")
 
     def get_calculation(self, category: str) -> Calculation:
+        """
+                Retrieve a calculation by category from the database.
+
+                Args:
+                    category (str): The category of the calculation to retrieve.
+
+                Returns:
+                    Calculation: The calculation object associated with the category.
+
+                Raises:
+                    NotFoundError: If no calculation is found for the given category.
+                """
         calculation: Calculation = self.db_handler.find_one("category", category)
         if calculation:
             return calculation
         raise NotFoundError(obj_name="Calculation under the category", obj_id=category)
 
     def filter_calculation(self, category: Optional[str] = None, activity: Optional[bool] = None) -> List[Calculation]:
+        """
+                Filter calculations based on optional category and activity status.
+
+                Args:
+                    category (Optional[str]): The category to filter by.
+                    activity (Optional[bool]): The activity status to filter by.
+
+                Returns:
+                    List[Calculation]: A list of calculations that match the filter criteria.
+                """
         query = {}
 
         if category:
@@ -29,6 +51,19 @@ class CalculationService:
         return self.db_handler.find(query)
 
     def get_category_items_and_calculation(self, category: str, items_result: List[Item]) -> List[ItemAndCalculation]:
+        """
+               Get items and their associated calculations for a given category.
+
+               Args:
+                   category (str): The category for which to retrieve items and calculations.
+                   items_result (List[Item]): The list of items to associate with the calculation.
+
+               Returns:
+                   List[ItemAndCalculation]: A list of ItemAndCalculation objects with category, name, activity, and amount per day.
+
+               Raises:
+                   NotFoundError: If no items or calculation is found for the given category.
+               """
         calculation: Calculation = self.get_calculation(category=category)
 
         if not items_result:

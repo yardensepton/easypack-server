@@ -113,11 +113,9 @@ async def user_reset_password(request: Request, new_password: str = Form(...), u
 
 @router.post("/refresh")
 async def refresh_new_token(refresh_token: str):
-    print("refresh toke is called")
     if not refresh_token:
         raise HTTPException(status_code=401, detail="No refresh token")
     user: UserEntity = await get_current_refresh_identity(refresh_token)
-    print("user changed password to " + user.password)
     access_token = create_access_token(user_id=user.id)
     return JSONResponse(status_code=status.HTTP_200_OK, content={"access_token": access_token,
                                                                  "token_type": "bearer"})

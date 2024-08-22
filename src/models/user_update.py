@@ -1,9 +1,8 @@
 from typing import Optional
 
-from src.models import BaseModel, ConfigDict, field_validator
+from src.models import BaseModel, ConfigDict
 from src.models.city import City
 from src.enums.gender_options import GenderOptions
-from src.exceptions.input_error import InputError
 
 
 class UserUpdate(BaseModel):

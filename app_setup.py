@@ -1,12 +1,10 @@
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from src.routers import user_route, item_route, trip_route, packing_list_route, city_route, weather_route, \
-    exchange_rate_route
+from src.routers import user_route, item_route, trip_route, packing_list_route, city_route, weather_route
 
 
 def create_app() -> FastAPI:
-
     app: FastAPI = FastAPI()
 
     app.include_router(
@@ -26,19 +24,8 @@ def create_app() -> FastAPI:
     )
 
     app.include_router(
-        exchange_rate_route.router
-    )
-    app.include_router(
         weather_route.router
     )
-
-    # Configure CORS
-    origins = [
-        "http://localhost",
-        "http://localhost:54689",
-        "http://192.168.1.197:8000",
-        "http://192.168.1.197",
-    ]
 
     app.add_middleware(
         CORSMiddleware,

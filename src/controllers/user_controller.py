@@ -17,7 +17,6 @@ class UserController:
 
     def create_user(self, user: UserBoundary) -> UserEntity:
         if validate_non_none_fields(obj=user) is True:
-            # user.city.currency_code = self.city_controller.get_country_code(user.city.country_name)
             return self.user_service.create_user(user)
 
     async def get_user_by_id(self, user_id: str) -> UserEntity:

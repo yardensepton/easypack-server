@@ -97,6 +97,16 @@ class TripController:
                     self.delete_trip_by_id(trip_id)
 
     async def update_trip_by_id(self, new_info: TripUpdate, trip_id: str) -> TripEntity:
+        """
+        Updates a trip by its ID based on the provided new information.
+
+        Args:
+            new_info (TripUpdate): The new information for the trip.
+            trip_id (str): The ID of the trip to be updated.
+
+        Returns:
+            TripEntity: The updated trip entity.
+        """
         trip_dict = await self.get_trip_by_id(trip_id)
         if trip_dict is not None:
             user_id = trip_dict.user_id
@@ -130,7 +140,18 @@ class TripController:
         return self.trip_service.get_all_trips()
 
     async def availability_within_date_range(self, user_id: str, departure_date: str, return_date: str, trip_id: str) -> bool:
-        # check if the user already has a trip within the given date range
+        """
+        Checks if a user has any existing trips within the specified date range.
+
+        Args:
+            user_id (str): The ID of the user.
+            departure_date (str): The departure date of the new trip in "YYYY-MM-DD" format.
+            return_date (str): The return date of the new trip in "YYYY-MM-DD" format.
+            trip_id (str): The ID of the current trip being checked.
+
+        Returns:
+            bool: True if no trip exists within the date range, False otherwise.
+        """
         trips = await self.get_trips_by_user_id(user_id=user_id)
         if trips is None:
             return True

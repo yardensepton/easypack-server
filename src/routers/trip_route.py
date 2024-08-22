@@ -83,11 +83,9 @@ async def get_trips_by_user_id(user_id: str, identity: UserEntity):
 @router.put("/scheduled", response_model=TripEntity)
 async def update_trips_weather(identity: UserEntity = Depends(get_current_access_identity)):
     week_trips: List[TripEntity] = await trip_controller.get_trips_in_a_week(user_id=identity.id)
-    print(week_trips)
     trip_ids = [trip.id for trip in week_trips]
     if len(week_trips) == 0:
         return JSONResponse(status_code=status.HTTP_200_OK, content="No trips in the upcoming week")
-    print(week_trips.__len__())
     for trip in week_trips:
         weather_data: List[WeatherDay] = await get_weather(trip.destination.city_name, trip.departure_date,
                                                            trip.return_date)
@@ -100,7 +98,6 @@ async def update_trips_weather(identity: UserEntity = Depends(get_current_access
 async def get_sorted_trips_info_by_current_user(identity: UserEntity = Depends(get_current_access_identity)):
     await user_controller.get_user_by_id(identity.id)
     trips: List[TripInfo] = await trip_controller.get_sorted_trips_info(identity.id)
-    print(f"trips len is {len(trips)} ")
     return JSONResponse(status_code=status.HTTP_200_OK, content=[trip.dict() for trip in trips])
 
 

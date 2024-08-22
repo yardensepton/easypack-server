@@ -28,7 +28,6 @@ trip_controller = TripController()
 @user_trip_access_or_abort
 async def create_packing_list(trip_id: str, packing_list_request: PackingListRequest,
                               identity: UserEntity = Depends(get_current_access_identity)):
-    print(packing_list_request.is_work)
     trip: TripEntity = await trip_controller.get_trip_by_id(trip_id)
     lat_lon: dict = await get_lat_lon(identity.city.text)
     pack_list: PackingListEntity = await packing_list_controller.create_packing_list(trip=trip,
@@ -73,6 +72,5 @@ async def delete_packing_list_by_id(trip_id: str, list_id: str,
 @user_trip_access_or_abort
 async def update_packing_list_by_id(new_info: PackingListUpdate, list_id: str, trip_id: str,
                                     identity: UserEntity = Depends(get_current_access_identity)):
-    print(list_id)
     updated_packing_list: PackingListEntity = await packing_list_controller.update_packing_list_by_id(new_info, list_id)
     return JSONResponse(status_code=status.HTTP_200_OK, content=updated_packing_list.dict())

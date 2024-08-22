@@ -10,6 +10,15 @@ from meteostat import Monthly, Point
 class WeatherController:
     @classmethod
     def create_weather_objects(cls, weather_data: dict) -> List[WeatherDay]:
+        """
+               Create a list of WeatherDay objects from raw weather data.
+
+               Args:
+                   weather_data (dict): Raw weather data containing daily weather information.
+
+               Returns:
+                   List[WeatherDay]: A list of WeatherDay objects.
+               """
         weather_objects = []
         for day in weather_data['days']:
             weather_day = WeatherDay(
@@ -27,6 +36,20 @@ class WeatherController:
 
     @classmethod
     def get_average_temp_in_user_residence(cls, start_date: datetime, end_date: datetime, lat_lon: dict) -> float:
+        """
+                Fetch and calculate the average temperature for the user's residence for the given date range.
+
+                Args:
+                    start_date (datetime): The start date for fetching weather data.
+                    end_date (datetime): The end date for fetching weather data.
+                    lat_lon (dict): Latitude and longitude of the user's residence.
+
+                Returns:
+                    float: The average temperature.
+
+                Raises:
+                    ValueError: If latitude and longitude are not provided, or if no valid temperature data is found.
+                """
         if not lat_lon:
             raise ValueError("Latitude and longitude must be provided")
 
@@ -37,8 +60,6 @@ class WeatherController:
         end = end_month.end_time
 
         point = Point(lat_lon.get('lat'), lat_lon.get('lon'))
-
-        print(lat_lon.get('lat'), lat_lon.get('lon'))
 
         data = Monthly(point, start, end)
         data = data.fetch()
@@ -60,6 +81,15 @@ class WeatherController:
 
     @classmethod
     def calculate_average_temp(cls, weather_data: List[WeatherDay]) -> float:
+        """
+               Calculate the average temperature from a list of WeatherDay objects.
+
+               Args:
+                   weather_data (List[WeatherDay]): List of WeatherDay objects containing daily weather information.
+
+               Returns:
+                   float: The average temperature across all provided weather days.
+               """
         total_temp = 0.0
         num_days = len(weather_data)
 
@@ -75,6 +105,15 @@ class WeatherController:
 
     @classmethod
     def check_if_raining(cls, weather_data: List[WeatherDay]) -> bool:
+        """
+               Determine if there is a high chance of rain based on the weather data.
+
+               Args:
+                   weather_data (List[WeatherDay]): List of WeatherDay objects containing daily weather information.
+
+               Returns:
+                   bool: True if there is a high chance of rain on any day, False otherwise.
+               """
         for day in weather_data:
             if day.precip_prob > 40:
                 return True
@@ -83,10 +122,17 @@ class WeatherController:
     @classmethod
     def get_user_feeling(cls, average_temp_of_trip: float,
                          users_residence_average_temp: int) -> UserWeatherFeelingOptions:
-        # users_residence_average_temp: float = cls.get_average_temp_in_user_residence(start_date=start_date,
-        #                                                                              end_date=end_date, lat_lon=lat_lon)
-        # print(f"user residence average {round(users_residence_average_temp)}")
-        # print(f"trip temp {round(average_temp_of_trip)}")
+        """
+              Determine how the user is likely to feel based on the average temperature of the trip compared to their
+              residence's average temperature.
+
+              Args:
+                  average_temp_of_trip (float): The average temperature during the trip.
+                  users_residence_average_temp (int): The average temperature of the user's residence.
+
+              Returns:
+                  UserWeatherFeelingOptions: The user's feeling about the trip's temperature (COLD, HOT, NORMAL).
+              """
         if round(users_residence_average_temp) >= round(average_temp_of_trip) + 5:
             return UserWeatherFeelingOptions.COLD
         elif round(users_residence_average_temp) <= round(average_temp_of_trip - 5):

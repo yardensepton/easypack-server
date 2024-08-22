@@ -48,7 +48,6 @@ class DBHandler(DBHandlerBase):
         return [self.init(obj) for obj in self.collection.find()]
 
     def find_one_and_update(self, new_info: Dict, key: str) -> Optional[T]:
-        print(new_info)
         if len(new_info) >= 1:
             updated_obj: Dict = self.collection.find_one_and_update(
                 {"_id": ObjectId(key)},
@@ -83,14 +82,12 @@ class DBHandler(DBHandlerBase):
             upsert=True,
             return_document=ReturnDocument.AFTER
         )
-        # logging.debug(f"Updated object: {updated_obj}")
         if updated_obj is not None:
             return self.init(updated_obj)
         return None
 
     def remove_specific_field(self, outer_value: str, outer_value_name: str, inner_value: str, inner_value_name: str) -> \
             Optional[Dict]:
-        # logging.debug(f"Removing item {item_id} from document with {key}: {value}")
         object_id = self.add_object_id("_id", outer_value)
         query = {"_id": object_id}
         update = {"$pull": {outer_value_name: {inner_value_name: inner_value}}}
@@ -99,8 +96,6 @@ class DBHandler(DBHandlerBase):
             update,
             return_document=ReturnDocument.AFTER
         )
-        print(updated_obj)
-        # logging.debug(f"Updated object after removal: {updated_obj}")
         if updated_obj is not None:
             return self.init(updated_obj)
         return None

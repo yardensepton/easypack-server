@@ -4,7 +4,6 @@ from typing import Union
 from jose import jwt
 
 from config import *
-from src.utils.authantication.password_utils import get_password_hash
 from src.utils.authantication.token_payload import TokenPayload
 
 

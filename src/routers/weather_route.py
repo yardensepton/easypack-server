@@ -46,6 +46,5 @@ async def get_weather(location: str, departure: str = Query(None, description="D
             raise HTTPException(status_code=response.status_code, detail="Failed to fetch weather data")
 
         weather_data = response.json()
-        print(weather_data)
 
         return weather_controller.create_weather_objects(weather_data)

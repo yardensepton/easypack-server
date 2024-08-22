@@ -1,5 +1,6 @@
 import math
-from typing import List, Optional, Any, Coroutine
+from logging import Logger
+from typing import Optional
 
 from src.models.calculation import Calculation
 from src.models.item import Item

@@ -15,7 +15,6 @@ JWT_REFRESH_SECRET = os.getenv('JWT_REFRESH_SECRET')
 JWT_ALGORITHM = os.getenv('JWT_ALGORITHM')
 GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
 WEATHER_API_KEY = os.getenv('WEATHER_API_KEY')
-EXCHANGE_RATE_API = os.getenv('EXCHANGE_RATE_API')
 CONNECTION_STRING_MONGO = os.getenv('CONNECTION_STRING_MONGO')
 reusable_oauth = OAuth2PasswordBearer(tokenUrl="/users/login", auto_error=False)
 
