@@ -68,7 +68,7 @@ pip install -r requirements.txt
 3. Make sure your MongoDB server is running
 4. Run the FastAPI server using uvicorn. Replace app with the appropriate module path for your FastAPI app:
 ```
- uvicorn app:app --host 0.0.0.0 --port 8000  
+ uvicorn app:app --host 0.0.0.0 --port 8080  
 ```
 ## Run the backend using Docker
 1. Pull the Docker Image.
