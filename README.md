@@ -8,7 +8,10 @@ The frontend application for EasyPack is maintained in a separate repository [ea
 ## Table of Contents
 * [Key Features](#key-features)
 * [Installation](#installation)
-* [Usage](#usage)
+* [Run the backend locally](#Run-the-backend-locally)
+* [Run the backend using Docker](#Run-the-backend-using-Docker)
+* [Access the API](#access-the-api)
+* [Create an Image and Run It Locally](#create-an-image-and-run-it-locally)
 
 
 ## Key Features	
@@ -32,44 +35,55 @@ to provide comprehensive weather and location information:
 ## Installation
 
 #### To run it, configure environment variables in a new `.env` file:
-run the following bash script. remember to fill the env variables according to your configuration.
-
+1. Open the [create_env.sh file](create_env.sh). 
+2. Fill in the environment variables where "TODO" is indicated according to your configuration. 
+3. If the script isn’t already executable, you need to make it executable. Open your terminal and run:
 ```bash
-# external API's configurations
-GOOGLE_API_KEY= # TODO: insert here your google api key
-WEATHER_API_KEY= # TODO: insert here your VisualCrossingAPI key
-
-# authentication configuration
-JWT_ACCESS_SECRET= # TODO: insert your access jwt access secret
-JWT_REFRESH_SECRET= # TODO: insert your refresh jwt access secret
-JWT_ALGORITHM= # TODO: currently using HS256, set according to your needs
-
-# database configuration
-CONNECTION_STRING_MONGO= # TODO: insert your MongoDB connection string
-
-cat <<EOF > .env
-GOOGLE_API_KEY=${GOOGLE_API_KEY}
-WEATHER_API_KEY=${WEATHER_API_KEY}
-JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
-JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
-JWT_ALGORITHM=${JWT_ALGORITHM}
-CONNECTION_STRING_MONGO=${CONNECTION_STRING_MONGO}
-EOF
+chmod +x create_env.sh
 ```
-#### To insert essential data into your database:
-Use the provided script `insert_data.py` to insert critical data into your MongoDB database. This data is necessary for the functionality of EasyPack and includes:
-* Clothing items categorized by temperature ranges, which the packing list generator uses to recommend appropriate clothing based on the trip's weather.
-* Special items such as eyeglasses and contact lenses, which are integrated into the packing list functionality.
+4. Run the script:
+```
+./create_env.sh
+``` 
 
-Run the following command to execute the script:
+#### To insert essential data for the functionality of EasyPack into your database:
+1. Open the [insert_items.sh file](insert_items.sh). 
+2. Fill in your Mongo connection string where "TODO" is indicated.
+3. If the script isn’t already executable, you need to make it executable. Open your terminal and run:
+```bash
+chmod +x insert_items.sh
 ```
- python insert_data.py
+4. Run the script:
 ```
+./insert_items.sh
+``` 
+
 
 ## Run the backend locally
-```python
-...
+1. Install all required dependencies listed in the requirements.txt file:
 ```
+pip install -r requirements.txt
+```
+2. Ensure you have run the initialization scripts (create_env.sh and insert_items.sh) as described above.
+3. Make sure your MongoDB server is running
+4. Run the FastAPI server using uvicorn. Replace app with the appropriate module path for your FastAPI app:
+```
+ uvicorn app:app --host 0.0.0.0 --port 8000  
+```
+## Run the backend using Docker
+1. Pull the Docker Image.
+You can pull the pre-built Docker image for EasyPack from Docker Hub. Use the following command to get the image:
+```bash
+docker pull yardensepton/easy-pack:<version>
+```
+2. After pulling the image, run the Docker container in detached mode with:
+```bash
+ docker run -p 8080:8080 --env-file .env -t easy-pack:<version> 
+```
+## Access the API
+Swagger UI Documentation:
+URL: http://localhost:8080/docs
+This page provides an interactive interface where you can explore and test the API endpoints.
 
 ## Create an image and run it locally
 ```bash
