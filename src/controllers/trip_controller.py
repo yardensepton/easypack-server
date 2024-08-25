@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from typing import List
 
+from logger import logger
 from src.controllers.packing_list_controller import PackingListController
 from src.models.city import City
 from src.models.trip_entity import TripEntity
@@ -17,6 +18,7 @@ class TripController:
     def __init__(self):
         self.trip_service = TripService()
         self.packing_list_controller = PackingListController()
+        self.logger = logger
 
     def create_trip(self, trip_entity: TripEntity) -> TripEntity:
         return self.trip_service.create_trip(trip=trip_entity)
@@ -139,7 +141,8 @@ class TripController:
     def get_all_trips(self) -> List[TripEntity]:
         return self.trip_service.get_all_trips()
 
-    async def availability_within_date_range(self, user_id: str, departure_date: str, return_date: str, trip_id: str) -> bool:
+    async def availability_within_date_range(self, user_id: str, departure_date: str, return_date: str,
+                                             trip_id: str) -> bool:
         """
         Checks if a user has any existing trips within the specified date range.
 
@@ -169,7 +172,9 @@ class TripController:
 
                 # Check if the trip falls within the specified date range
                 if trip_start <= current_trip_start <= trip_end or trip_start <= current_trip_end <= trip_end:
-                    raise InputError(f"User '{user_id}' has a trip within the date range")
+                    self.logger.debug(
+                        f"User {user_id} tried to add a trip but already has a trip within the given date range")
+                    raise InputError(f"You already have a trip within the date range")
 
         # No trip found within the date range
         return True
