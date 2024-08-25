@@ -60,23 +60,32 @@ chmod +x insert_items.sh
 
 
 ## Run the backend locally
-1. Install all required dependencies listed in the requirements.txt file:
+1. Clone the EasyPack server repository:
+```bash
+git clone https://github.com/yardensepton/easypack-server.git
+```
+2. Install all required dependencies listed in the requirements.txt file:
 ```
 pip install -r requirements.txt
 ```
-2. Ensure you have run the initialization scripts (create_env.sh and insert_items.sh) as described above.
-3. Make sure your MongoDB server is running
-4. Run the FastAPI server using uvicorn. Replace app with the appropriate module path for your FastAPI app:
+3. Ensure you run the initialization scripts (create_env.sh and insert_items.sh) as described above.
+4. Make sure your MongoDB server is running
+5. Run the FastAPI server using uvicorn. Replace app with the appropriate module path for your FastAPI app:
 ```
  uvicorn app:app --host 0.0.0.0 --port 8080  
 ```
 ## Run the backend using Docker
-1. Pull the Docker Image.
+1. Clone the EasyPack server repository:
+```bash
+git clone https://github.com/yardensepton/easypack-server.git
+```
+2. Ensure you run the initialization scripts (create_env.sh and insert_items.sh) as described above.
+3. Pull the Docker Image.
 You can pull the pre-built Docker image for EasyPack from Docker Hub. Use the following command to get the image:
 ```bash
 docker pull yardensepton/easy-pack:<version>
 ```
-2. After pulling the image, run the Docker container in detached mode with:
+4. After pulling the image, run the Docker container in detached mode with:
 ```bash
  docker run -p 8080:8080 --env-file .env -t easy-pack:<version> 
 ```
