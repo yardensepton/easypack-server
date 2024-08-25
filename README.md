@@ -82,8 +82,8 @@ docker pull yardensepton/easy-pack:<version>
 ```
 ## Access the API
 Swagger UI Documentation:
-URL: http://localhost:8080/docs
-This page provides an interactive interface where you can explore and test the API endpoints.
+* URL: http://localhost:8080/docs
+* This page provides an interactive interface where you can explore and test the API endpoints.
 
 ## Create an image and run it locally
 ```bash
