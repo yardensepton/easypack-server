@@ -81,7 +81,7 @@ class TripService:
             self.logger.info(f"Trips of {user_id} were deleted successfully")
             self.db_handler.delete_many({"user_id": user_id})
 
-    def delete_trip_by_id(self, trip_id):
+    async def delete_trip_by_id(self, trip_id):
         """
                Delete a trip from the database by its ID.
 
@@ -94,8 +94,9 @@ class TripService:
                Logs:
                    Info message indicating that the trip was deleted.
                """
-        trip = self.get_trip_by_id(trip_id)
+        trip = await self.get_trip_by_id(trip_id)
         if trip is not None:
+            self.logger.info(f"Trip {trip_id} was deleted successfully")
             self.db_handler.delete_one("_id", trip_id)
 
     def update_trip_by_id(self, new_info: TripUpdate, trip_id: str) -> TripEntity:

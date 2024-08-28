@@ -85,8 +85,8 @@ class TripController:
         trips: List[TripEntity] = await self.sort_users_trips(user_id=user_id)
         return trips[0] if trips else None
 
-    def delete_trip_by_id(self, trip_id: str):
-        self.trip_service.delete_trip_by_id(trip_id=trip_id)
+    async def delete_trip_by_id(self, trip_id: str):
+        await self.trip_service.delete_trip_by_id(trip_id=trip_id)
 
     async def delete_trips_by_user_id(self, user_id: str):
         trips = await self.get_trips_by_user_id(user_id=user_id)
@@ -96,7 +96,7 @@ class TripController:
 
                 if trip_id is not None:
                     self.packing_list_controller.delete_packing_list_by_trip_id(trip_id)
-                    self.delete_trip_by_id(trip_id)
+                    await self.delete_trip_by_id(trip_id)
 
     async def update_trip_by_id(self, new_info: TripUpdate, trip_id: str) -> TripEntity:
         """
