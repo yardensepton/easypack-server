@@ -13,7 +13,6 @@ The frontend application for EasyPack is maintained in a separate repository [ea
 * [Access the API](#access-the-api)
 * [Create an Image and Run It Locally](#create-an-image-and-run-it-locally)
 
-
 ## Key Features	
 
 * FastAPI Framework: Ensures high performance and scalability.
