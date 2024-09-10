@@ -105,7 +105,7 @@ async def get_sorted_trips_info_by_current_user(identity: UserEntity = Depends(g
 @user_trip_access_or_abort
 async def update_trip_by_id(new_info: TripUpdate, trip_id: str,
                             identity: UserEntity = Depends(get_current_access_identity)):
-    updated_trip: TripEntity =await trip_controller.update_trip_by_id(new_info, trip_id)
+    updated_trip: TripEntity = await trip_controller.update_trip_by_id(new_info, trip_id)
     return JSONResponse(status_code=status.HTTP_200_OK, content=updated_trip.dict())
 
 
@@ -114,5 +114,5 @@ async def update_trip_by_id(new_info: TripUpdate, trip_id: str,
 async def delete_trip_by_id(trip_id: str, identity: UserEntity = Depends(get_current_access_identity)):
     packing_list_controller.get_packing_list_by_trip_id(trip_id)
     packing_list_controller.delete_packing_list_by_trip_id(trip_id)
-    trip_controller.delete_trip_by_id(trip_id)
+    await trip_controller.delete_trip_by_id(trip_id)
     return JSONResponse(status_code=status.HTTP_200_OK, content=f"Trip {trip_id} deleted")
